@@ -1,0 +1,13 @@
+#
+#   task-package:rpm-tasks.yml
+#Sun Nov 10 01:55:22 PM CET 2024
+---
+
+- set_fact: { rpm_dest: "{{ rpm_dir }}/{{ rpm_basename }}" }
+- file: { path: "{{ rpm_dir }}", state: directory }
+- copy: { src: "{{ path_rpm }}", dest: "{{ rpm_dest }}" }
+
+- name: "[task-package:rpm-tasks] rpm={{ rpm_dest }} {Level: 5}"
+  zypper: { name: "file://{{ rpm_dest | urlencode }}", state: present, disable_gpg_check: true }
+
+- file: { path: "{{ rpm_witness }}", state: touch }

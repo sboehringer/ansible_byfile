@@ -1,0 +1,28 @@
+#
+#   extract.yml
+#	derived from make-install.yml
+#Sun Jun  9 10:35:38 PM CEST 2024
+---
+
+#   vars:
+#       path
+#
+#   example: extract path/lastcomp;;;;asis
+#      extract to path (from path in file content), rename topfoler to lastcomp
+#      asis: do not move after extraction
+
+
+- include_tasks: common-pathDecompose.yml
+
+- set_fact:
+    extract_input: "{{ lookup('file', path_src) | regex_replace(\"\\n.*\",  '' ) }}"
+    #extract_input: "{{ lookup('file', path_src) | regex_replace(\"\\n.*\",  '' ) | regex_replace('^~/', ansible_user_home }}"
+  delegate_to: localhost
+- set_fact:
+    extract_type: "{{ extract_input | basename | regex_replace('.*[.]([^.]+)', '\\1') }}"
+    extract_witness: "{{ witness_dir }}/witness:extract:{{ extract_input | basename }}"
+
+- { stat: { path: "{{ extract_witness }}" }, register: w }
+- name: "[task-extract] type={{ extract_type }} extract_witness={{ extract_witness }} {Level: 2}"
+  include_tasks: task-extract-tasks.yml
+  when: not w.stat.exists

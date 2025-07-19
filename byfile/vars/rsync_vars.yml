@@ -1,0 +1,10 @@
+---
+rsync_vars:
+  Debian:
+    options: [ "--chmod=o-rwX", "--exclude=.git" ]
+  Ubuntu:
+    options: [ "--chmod=o-rwX", "--exclude=.git" ]
+  openSUSE Leap:
+    options: [ "--usermap=*:{{ path_owner }}", "--groupmap=*:{{ path_group }}", "--chmod=o-rwX", "--exclude=.git" ]
+  openSUSE Tumbleweed:
+    options: [ "--usermap=*:{{ path_owner }}", "--groupmap=*:{{ path_group }}", "--chmod=o-rwX", "--exclude=.git" ]

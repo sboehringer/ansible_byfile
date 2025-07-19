@@ -1,0 +1,14 @@
+#
+#   common-package-zypper.yml
+# Sun Oct 13 05:18:21 PM CEST 2024
+---
+
+#   vars:
+#       path: file to pacakge lsit
+
+- name: "[common-package-zypper] Packages={{ package_name }} {Level: 4}"
+  zypper:
+    name: "{{ lookup('file', path).split(\"\n\") | select('match', '^[^#].+') | list }}"
+    state: present
+    disable_gpg_check: yes
+    force_resolution: "{{ package_force }}"

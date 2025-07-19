@@ -1,0 +1,26 @@
+#
+#   task-extract:zip.yml
+#	based on: task-extract:tgz.yml
+#Thu Oct 31 10:08:34 PM CET 2024
+---
+
+# <p> vars
+#   extract_input: path to tgz-file [ expect full path ]
+#   path_owner: owner (default: root)
+#   path_group: group (default: owner
+#   path_mode: mode of files (default: 0700)
+#   extract_dir: destination folder (default: /tmp/ansible_zip_{{ path_owner }}
+#   extract_dest: destination folder (default: /tmp/ansible_zip_{{ path_owner }}
+
+- name: "[task-extract:zip] Top folder '{{ extract_dest }}'"
+  shell: unzip -l {{ extract_dest | quote }} | head -n 6 | tail -n 3 | perl -pe 's/((?:^|\s+)\S+){3}\s*//' | perl -pe 's{/$}{}' | perl -ne 'print $_ if (! m{^-+\n});' | head -n 1
+  register: extract_top_folder_raw
+  become: true
+  become_user: "{{ path_owner }}"
+  #args: { warn: false }
+  
+- name: "[task-extract:zip] Extract path='{{ extract_dest }}' owner={{ path_owner }} topfolder='{{ extract_top_folder_raw.stdout }}'"
+  shell: cd {{ extract_dir | quote }} ; unzip {{ extract_dest | quote }}
+  become: true
+  become_user: "{{ path_owner }}"
+  args: { creates: "{{ extract_dir }}/{{ extract_top_folder_raw.stdout }}" }

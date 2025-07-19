@@ -1,0 +1,26 @@
+#
+#   task-line.yml
+#Sat Nov  2 10:39:54 PM CET 2024
+---
+
+#   vars:
+#       path
+#
+#   file content:
+#       line 1: search regex
+#       line 2: line to replace
+#       $HOME, $USER, $UID, $SECRET replaced
+
+- include_tasks: common-pathDecompose.yml
+
+- set_fact: { line_spec: "{{ lookup('file', path_src ) }}" }
+- set_fact:
+    line_search: "{{ line_spec | regex_replace('(?s)^([^\\n]*)\\n(.*)', '\\1') }}"
+    install_secret: "{{ install_secret | default('') }}"
+- set_fact: { line_replace: "{{ line_spec | regex_replace('(?s)^[^\\n]*\\n(.*)', '\\1') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') |regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]UID(.*)$', '\\g<1>' + install_uid + '\\g<2>') | regex_replace('^(.*?)[$]UID(.*)$', '\\g<1>' + install_uid + '\\g<2>') |regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') | regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') | regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') | regex_replace('^(.*?)[$]SECRET(.*)$', '\\g<1>' + install_secret + '\\g<2>') }}" }
+
+- name: "[task-line] search='{{ line_search }}' replace='{{ line_replace }}' path='{{ path_dest }}' {Level: 5}"
+  lineinfile:
+    path: "{{ path_dest }}"
+    regexp: '{{ line_search }}'
+    line: '{{ line_replace }}'

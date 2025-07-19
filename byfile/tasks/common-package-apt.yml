@@ -1,0 +1,13 @@
+#
+#   common-package-apt
+#Sun Oct 13 05:17:41 PM CEST 2024
+---
+
+#   vars:
+#       path: file to pacakge lsit
+
+- name: "[common-package-apt] Install packages {Level: 4}"
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ lookup('file', path).split(\"\n\") | select('match', '^[^#].+') | list }}"

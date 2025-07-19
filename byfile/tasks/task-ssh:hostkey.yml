@@ -1,0 +1,17 @@
+#
+#	task-ssh:hostkey.yml
+# Wed Jun  4 09:28:09 PM CEST 2025
+#
+---
+#
+#   Vars:
+#       path: file to install, dest inline encoding
+#
+
+- include_tasks: common-pathDecompose.yml
+- name: "[task-ssh:hostkey] {{ ssh_host }}@{{ install_user }} {Level: 4}"
+  known_hosts:
+    name: "{{ ssh_host }}"
+    key: "{{ lookup('file', path ) }}"
+  become: true
+  become_user: "{{ install_user }}"

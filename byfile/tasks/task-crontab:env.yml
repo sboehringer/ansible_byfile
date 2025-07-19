@@ -1,0 +1,22 @@
+#
+#   task-crontab:env.yml
+# Sun Oct 13 03:04:31 PM CEST 2024
+
+# vars:
+#   path
+
+#   File contains lines of key=value
+# replacements:
+#   $HOME, $USER, $UID
+
+# <!> \1 ambiguous when repplacment starts with digit -> \g<1>
+- name: "[task-crontab:env] Install crontab environment"
+  cronvar:
+    name: "{{ key }}"
+    value: "{{ value }}"
+    user: "{{ install_user }}"
+  vars:
+    key: "{{ v | regex_replace('^([^=]+)=.*', '\\g<1>') }}"
+    value: "{{ v | regex_replace('^[^=]+=(.*)', '\\g<1>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') |regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]UID(.*)$', '\\g<1>' + install_uid + '\\g<2>') | regex_replace('^(.*?)[$]UID(.*)$', '\\g<1>' + install_uid + '\\g<2>') |regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') | regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') | regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') }}"
+  loop: "{{ lookup('file', '{{ path }}').split(\"\n\") }}"
+  loop_control: { loop_var: v }

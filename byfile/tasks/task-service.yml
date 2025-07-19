@@ -1,0 +1,50 @@
+#
+#	task-service.yml
+#Sat Aug 29 13:56:51 CEST 2020
+---
+
+#   vars:
+#       path
+#
+
+- include_tasks: common-pathDecompose.yml
+
+#
+#   <p> system service
+#
+
+- name: "[task-service] probe={{ service_name }} {Level 4}"
+  shell: "systemctl status {{ service_name }} ; echo $?"
+  register: probe
+  when: service_system
+
+- name: "[task-service] service={{ service_name }} enabled={{ service_enabled }} started={{ service_started }} exit={{ probe.stdout }}"
+  service:
+    name: "{{ service_name }}"
+    enabled: "{{ service_enabled }}"
+    state: "{{ service_started }}"
+  when: service_system and probe.stdout != '0'
+
+#
+#   <p> user service
+#
+
+- name: "[task-service] user probing={{ service_name }} {Level 4}"
+  shell: "systemctl --user status {{ service_name }} ; echo $?"
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ install_uid }}"
+  register: probe
+  when: not service_system
+
+- name: "[task-service] user service={{ service_name }} enabled={{ service_enabled }} started={{ service_started }} exit={{ probe.stdout }}"
+  systemd:
+    name: "{{ service_name }}"
+    enabled: "{{ service_enabled }}"
+    state: "{{ service_started }}"
+    daemon_reload: yes
+    scope: user
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ install_uid }}"
+  become: yes
+  become_user: "{{ service_user }}"
+  when: not service_system and probe.stdout != '0'

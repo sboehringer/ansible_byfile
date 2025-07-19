@@ -1,0 +1,14 @@
+#
+#	task-ssh:pull.yml
+# Sat Oct 26 01:55:32 PM CEST 2024
+#
+---
+#
+#   Vars:
+#       path: file to install, dest inline encoding
+#
+
+- name: "[task-ssh:pull] {{ path }} -> {{ install_user }} {Level: 4}"
+  authorized_key:
+    user: "{{ install_user }}"
+    key: "{{ lookup('file', path ) }}"

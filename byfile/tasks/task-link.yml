@@ -1,0 +1,22 @@
+#
+#   task-link.yml
+#Sat Nov  9 10:31:42 PM CET 2024
+# derived from task-file.yml
+---
+#
+#   Vars:
+#       path: file to install, dest inline encoding
+#
+
+- include_tasks: common-pathDecompose.yml
+- name: "[task-link] symlink {{ link_src }} -> {{ path_dest }} owner={{ path_owner }} group={{ path_group }} force={{ link_force }} {Level: 5}"
+  file:
+    dest: "{{ path_dest }}"  # file being created
+    src: "{{ link_src }}"    # file being pointed to
+    owner: "{{ path_owner }}"
+    group: "{{ path_group }}"
+    force: "{{ link_force }}"
+    state: link
+    follow: False           # owener/group of link and not pointed to file
+  vars:
+    link_src: "{{ lookup('file', path_src) | regex_replace(\"\\n.*\",  '' ) | regex_replace('^~/', install_home + '/') }}"

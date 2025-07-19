@@ -1,0 +1,11 @@
+#
+#   task-package:flatpak.yml
+#Sun Oct 13 08:59:36 PM CEST 2024
+
+
+- name: "[task-package:flatpak] Install flatpaks {Level: 4}"
+  flatpak:
+    name: "{{ flatpak_name }}"
+    state: present
+  loop: "{{ lookup('file', flatpak_list).split(\"\n\") | select('match', '^[^#].+') | list }}"
+  loop_control: { loop_var: flatpak_name }

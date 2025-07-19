@@ -1,0 +1,23 @@
+#
+#   template.yml
+#Sat Nov  9 11:46:41 AM CET 2024
+---
+#   Vars:
+#       path: file to install, dest inline encoding
+#
+
+- include_tasks: common-pathDecompose.yml
+- { stat: { path: "{{ path_witness }}" }, register: witness }
+- fetch: { src: "{{ path_dest }}", dest: "{{ path_backup }}" }
+  when: backup_dir is defined and not witness.stat.exists
+
+- name: "[task-template] template file into {{ path_dest }}"
+  template:
+    src: "{{ path_src }}"
+    dest: "{{ path_dest }}"
+    owner: "{{ path_owner }}"
+    group: "{{ path_group }}"
+    mode: "{{ path_mode }}"
+  when: not witness.stat.exists or not path_once
+
+- file: { path: "{{ path_witness }}", state: touch }

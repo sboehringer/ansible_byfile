@@ -1,0 +1,19 @@
+#
+#   task-git.yml
+#Sat Nov  2 04:56:52 PM CET 2024
+---
+#
+#   Vars:
+#       path: file to install, dest inline encoding
+#
+
+- include_tasks: common-pathDecompose.yml
+
+- name: "[task-git] clone or pull"
+  become: true
+  become_user: "{{ path_owner }}"
+  git:
+    dest: "{{ path_dest }}"
+    repo: "{{ lookup('file', path_src) }}"
+    update: true
+    version: "{% if path_options == ''%}master{% else %}{{ path_options }}{% endif %}"

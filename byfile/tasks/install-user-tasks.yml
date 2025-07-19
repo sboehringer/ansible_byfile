@@ -1,0 +1,121 @@
+#
+#	install-user-tasks.yml
+#Wed Oct 16 09:50:04 PM CEST 2024
+---
+#
+#	Vars:
+#       user
+#       global_install_folder
+
+- set_fact:
+    install_user: "{{ user.name }}"
+    install_group: "{{ user.group | default(user.name) }}"
+
+- name: "[install-user-tasks]] Create group for user {{ install_group }}"
+  group: name={{ install_group }}
+
+- name: "[install-user-tasks] Create User {{ user.name }}"
+  user:
+    name: "{{ install_user }}"
+    group: "{{ install_group }}"
+    groups: "{{ user.groups | default([]) }}"
+    append: true
+    generate_ssh_key: "{{ user.ssh_key is defined and user.ssh_key }}"
+    ssh_key_type: "{{ user.ssh_key_type | default('rsa') }}"
+    ssh_key_bits: "{{ user.ssh_key_size | default('4096') }}"
+  when: not ( user.name == 'root' )
+
+- name: "[install-user-tasks] definitions user={{ install_user }} group={{ install_group }} {Level: 5}"
+  include_tasks: common-user-definitions.yml
+
+- name: "[install-user-tasks] dir for files fetched from {{ inventory_hostname }} {Level: 5}"
+  file:
+    path: "{{ ansible_home }}/files/byfile/{{ inventory_hostname }}_{{ install_user }}/"
+    state: directory
+    owner: "{{ ansible_control_user }}"
+    group: "{{ ansible_control_user }}"
+    mode: "0750"
+  delegate_to: localhost
+
+- name: "[install-user-tasks] fetch ssh public key {{ user.name }} {Level: 4}"
+  become: true
+  become_user: "{{ install_user }}"
+  fetch:
+    src: "{{ item }}"
+    dest: "{{ ansible_home }}/files/byfile/{{ inventory_hostname }}_{{ install_user }}/"
+    fail_on_missing: false
+    flat: true
+  loop: [ "{{ install_home }}/.ssh/id_rsa.pub", "{{ install_home }}/.ssh/id_ecdsa.pub" ]
+  when: install_user != 'root' and user.ssh_key is defined and user.ssh_key
+
+
+# - name: "[install-user-tasks] Lingering status of user {{ user.name }}"
+#   shell: loginctl {% if user.linger %}enable-linger{% else %}disable-linger{% endif %} {{ user.name }}
+#   when: user.linger is defined
+#
+# # <!> requires root user to have perl
+# - name: "[install-user-tasks] Luks container"
+#   include_tasks: luks.yml
+#   vars:
+#     containername: "{{ user.name }}"
+#     containerowner: "{{ user.name }}"
+#     containerpassword: "{{ user.luks.password }}"
+#     containersize: "{{ user.luks.size }}"
+#     containermountpoint: "/home/{{ user.name }}"
+#   when: "'luks' in user"
+#
+
+#- name: Install task generic user files
+  #include_role: { name: common, tasks_from: files-install.yml }
+  #vars:
+    #install_from: "roles/common/files/user/generic"
+    #install_user: "{{ user.name }}"
+    #template_vars: "{{ user.template_vars | default({})}}"
+
+# install admin ssh public key from 'files/byfile/ssh/admin.pub'
+- name: "Authorized_key {{ install_user }} {Level: 4}"
+  authorized_key:
+    user: "{{ install_user }}"
+    key: "{{ lookup('file', ansible_home + '/files/byfile/ssh/admin.pub') }}"
+  when: user.authorized_key is defined and user.authorized_key
+
+#
+#   <p> generic all users on all hosts
+#
+- { stat: { path: "{{ global_install_folder }}/user:*" }, delegate_to: localhost, register: ufgg }
+#- debug: { msg: "path: {{ global_install_folder }}/generic/users status: {{ ufgg }}" }
+- name: "Std Folders all hosts all users {{ global_install_folder }}/user:*"
+  include_tasks: task-taskFolder.yml
+  vars:
+    path: "{{ global_install_folder }}/user:*"
+    service_user: "{{ user.name }}"
+    template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
+  tags: [ generic_igh ]
+  when: ufgg.stat.exists
+
+#
+#   <p> generic all users on host
+#
+- { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:*" }, delegate_to: localhost, register: ufg }
+- name: "[install-user-tasks] Std Folders this hosts all users {{ global_install_folder }}/hosts/{{ inventory_hostname }}/user:*"
+  include_tasks: task-taskFolder.yml
+  vars:
+    path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:*"
+    service_user: "{{ user.name }}"
+    template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
+  tags: [ generic_igh ]
+  when: ufg.stat.exists
+
+#
+#   <p> user specific standard folder
+#
+- { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }}" }, delegate_to: localhost, register: ufs }
+- debug: { msg: "Path {{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }} exists: {{ ufs.stat.exists }}" }
+- name: "[install-user-tasks] Std Folders this hosts this user {{ global_install_folder }}/hosts/{{ inventory_hostname }}/users/{{ user.name }}"
+  include_tasks: task-taskFolder.yml
+  vars:
+    path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }}"
+    service_user: "{{ user.name }}"
+    template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
+  tags: [ generic_igh ]
+  when: ufs.stat.exists

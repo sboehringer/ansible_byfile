@@ -1,0 +1,31 @@
+#
+#   task-rsync.yml
+#   derived from commom/rsync-files-looped.yml
+# Sun Aug 30 19:10:51 CEST 2020
+---
+
+#   vars.
+#       path
+
+- include_tasks: common-pathDecompose.yml
+# include dynamically to re-template vars
+- include_vars: rsync_vars.yml
+- set_fact:
+    # special case needs to be handled due to rsync transferring cwd in this case
+    rsync_options: "{% if path_options == '' %}{{ rsync_vars[ansible_distribution]['options'] }}{% else %}{{ path_options_split + rsync_vars[ansible_distribution]['options'] }}{% endif %}"
+    #rsync_options: "{{ path_options_split + rsync_vars[ansible_distribution]['options'] }}"
+
+- name: "[task-rsync] options='{{ rsync_options }}'"
+  synchronize:
+    src: "{{ lookup('file', path_src) | regex_replace(\"\\n.*\",  '' ) | regex_replace('^~/', lookup('env', 'HOME') + '/') }}"
+    dest: "{{ path_dest }}"
+    rsync_opts: "{{ rsync_options }}"
+
+# debian rsync version does not support usermap/chown
+- name: "[task-rsync] chown user={{ path_owner }} group={{ path_group }}"
+  file:
+    dest: "{{ path_dest }}"
+    owner: "{{ path_owner }}"
+    group: "{{ path_group }}"
+    recurse: yes
+  when: ansible_facts['os_family'] == "Debian" and path_owner is defined

@@ -1,0 +1,25 @@
+#
+#   task-file.yml
+#Sun Sep 22 03:12:49 PM CEST 2024
+---
+#
+#   Vars:
+#       path: file to install, dest inline encoding
+#
+
+- include_tasks: common-pathDecompose.yml
+- { stat: { path: "{{ path_witness }}" }, register: w }
+- { stat: { path: "{{ path_dest }}" }, register: p }
+- fetch: { src: "{{ path_dest }}", dest: "{{ path_backup }}" }
+  when: backup_dir is defined and not w.stat.exists
+
+- name: "[task-file] {{ path_src }} -> {{ path_dest }}; mode={{ path_mode }} owner={{ path_owner }} group={{ path_group }} options={{ path_options}} {Level: 3}"
+  copy:
+    src: "{{ path_src }}"
+    dest: "{{ path_dest }}"
+    owner: "{{ path_owner }}"
+    group: "{{ path_group }}"
+    mode: "{{ path_mode }}"
+  when: not w.stat.exists or not path_once or not (path_ifabsent and p.stat.exists)
+
+- file: { path: "{{ path_witness }}", state: touch }

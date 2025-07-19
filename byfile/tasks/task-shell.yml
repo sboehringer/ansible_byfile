@@ -1,0 +1,13 @@
+#
+#	task-shell.yml
+#Sun Jun  2 02:35:57 PM CEST 2024
+---
+
+#   vars
+#       path
+#   pre: common-defintions, common-userDefinitions
+
+- include_tasks: common-pathDecompose.yml
+- { stat: { path: "{{ path_witness }}" }, register: shellWitness }
+- include_tasks: task-shell-tasks.yml
+  when: shellWitness.stat.exists == False
