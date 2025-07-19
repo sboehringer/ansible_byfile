@@ -27,3 +27,16 @@ Suggested tree
 ├── [8.0K]  roles_meta
 │   └── [4.0K]  ansible_byfile
 ```
+
+## Git
+Assuming that the `${ANSIBLE_HOME}` folder is maintained using git, a submodule should be added after cloning.
+
+```
+pushd ${ANSIBLE_HOME} > /dev/null
+	mkdir roles_meta
+	pushd roles_meta > /dev/null
+		git clone https://git@gitserver.dev/path/ansible_byfile.git
+	popd > /dev/null
+	git submodule add https://git@gitserver.dev/path/ansible_byfile.git roles_meta/ansible_byfile
+popd > /dev/null
+```
