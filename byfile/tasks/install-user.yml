@@ -1,0 +1,16 @@
+#
+#	install-user.yml
+#Wed Oct 16 09:49:12 PM CEST 2024
+---
+
+#   vars:
+#   user (dict)
+#       name
+#       perl
+#       python
+#       ignore
+#       template_vars
+
+- name: "[install-user] Create/configure user {{ user.name }}"
+  include_tasks: install-user-tasks.yml
+  when: user.ignore is not defined or not user.ignore

@@ -1,0 +1,22 @@
+#
+#	task-ssh:push.yml
+# derived from common/ssh-key-push
+#Sat Nov  2 05:07:08 PM CET 2024
+---
+#
+#   Vars:
+#       path: file to install, dest inline encoding
+#
+- include_tasks: common-pathDecompose.yml
+
+- name: "[task-ssh:push] push authorized_key -> {{ ssh_host }} {Level: 4}"
+  local_action: command ~/bin/ssh-copy-auth {{ ssh_user }} {{ ssh_host }} {{ sshkey | quote }}
+  vars: { sshkey: "{{ lookup('file',  item) }}" }
+  become: true
+  become_user: "{{ lookup('env', 'USER') }}"
+  with_first_found:
+    # ecdsa gets priority given ansible by default generates only rsa key
+    - files:
+      - "{{ ansible_home + '/files/byfile/' + inventory_hostname + '_' + install_user + '/id_ecdsa.pub' }}"
+      - "{{ ansible_home + '/files/byfile/' + inventory_hostname + '_' + install_user + '/id_rsa.pub' }}"
+      skip: false

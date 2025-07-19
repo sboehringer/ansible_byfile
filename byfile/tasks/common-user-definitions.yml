@@ -1,0 +1,28 @@
+#
+#	common-user-definitions.yml
+#Wed Oct 16 09:38:24 PM CEST 2024
+---
+
+#   Variables
+#       install_user: user for whom defintions are sought, defaults to 'root'
+#       user: dict with user description (no_home_folder, when no home folder present)
+#
+#   Definitions
+#       install_home: home folder of user
+#       install_uid: uid of install_user
+
+- name: "[common-user-definitions] user={{ install_user }}"
+  shell: 'echo $HOME'
+  register: home
+  become: yes
+  become_user: "{{ install_user | default('root') }}"
+  when: (user['no_home_folder'] is not defined) or (not user['no_home_folder'])
+- set_fact: { install_home: "{{ home.stdout | default('/root') }}" }
+  when: (user['no_home_folder'] is not defined) or (not user['no_home_folder'])
+- shell: 'id -u {{ install_user }}'
+  register: userid
+- set_fact: { install_uid: "{{ userid.stdout }}" }
+
+- name: "[common-user-definitions] user template_vars intall_user={{ install_user }}, install_home={{ install_home }} install_uid={{ install_uid }}"
+  set_fact: { "{{ item.key }}": "{{ item.value }}" }
+  loop: "{{ user['template_vars'] | default({}) | dict2items }}"

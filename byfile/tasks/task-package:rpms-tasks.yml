@@ -1,0 +1,51 @@
+#
+#   task-package:rpms-tasks.yml
+#Mon Nov 11 10:20:13 PM CET 2024
+---
+
+# rpm_arch might be different from ansible_architecture, i.e. i586 vs i386, set in global vars file as default or coded in list-filename
+# <!> cave file name has to match package name from spec file
+
+- { stat: { path: "{{ rpm_witness }}" }, register: w }
+
+- set_fact:
+    rpm_dest: "{{ rpm_dir }}/{{ rpm_basename }}"
+    rpmdir: "/usr/src/packages/RPMS/{{ rpm_arch | default('i586') }}"
+- set_fact: { rpmbin_prefix: "{{ rpm_dest | basename | regex_replace('\\.src\\.rpm', '') }}" }
+- set_fact: { rpmpath: "{{ rpmdir }}/{{ rpmbin_prefix }}.{{ rpm_arch }}.rpm" }
+- set_fact: { rpmdevel: "{{ rpmpath | regex_replace('^([^\\-]+)(.*)', '\\1-devel\\2') }}" }
+
+- file: { path: "/tmp/ansible/rpms", state: directory }
+  when: "not w.stat.exists"
+- file: { path: "/opt/ansible/rpms", state: directory }
+  when: "not w.stat.exists"
+
+- name: "[task-package:rpms-tasks] controller_path={{ rpm_path }} host_path={{ rpm_dest }} rpmdevel={{ rpmdevel }} {Level: 6}"
+  copy: { src: "{{ rpm_path }}", dest: "{{ rpm_dest }}" }
+  when: "not w.stat.exists"
+
+- name: "[task-package:rpms-tasks] build depenencies {Level: 4}"
+  shell: "zypper --non-interactive si --build-deps-only {{ rpm_dest | quote }}"
+  when: "not w.stat.exists"
+
+- name: "[task-package:rpms-tasks] build rpm={{ rpm_dest }} {Level: 4}"
+  shell: "rpmbuild -rb {{ rpm_dest | quote }}"
+  when: "not w.stat.exists"
+
+- name: "[task-package:rpms-tasks] install {Level: 4}"
+  zypper: { name: "file://{{ rpmpath | urlencode }}", state: present, disable_gpg_check: true }
+  when: "not w.stat.exists"
+
+- name: "[task-package:rpms-tasks] detect rpm-devel {Level: 4}"
+  debug: msg="found devel-pkg={{ pkg_path }}"
+  with_first_found: [ { files: [ "{{ rpmdevel }}" ], skip: true } ]
+  loop_control: { loop_var: pkg_path }
+
+- name: "[task-package:rpms-tasks] install rpm-devel {Level: 4}"
+  zypper: { name: "file://{{ pkg_path | urlencode }}", state: present, disable_gpg_check: true }
+  with_first_found: [ { files: [ "{{ rpmdevel }}" ], skip: true } ]
+  loop_control: { loop_var: pkg_path }
+  when: "not w.stat.exists"
+
+- file: { path: "{{ rpm_witness }}", state: touch }
+  when: "not w.stat.exists"

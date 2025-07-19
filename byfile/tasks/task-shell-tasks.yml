@@ -1,0 +1,28 @@
+#
+#   task-shell-tasks.yml
+#Sun Nov 10 12:49:27 PM CET 2024
+---
+
+- name: "[task-shell-tasks] facts"
+  set_fact:
+    # remove comments; create single line;
+    # | regex_replace('(^|\n)[#][^\n]+', '')  | regex_replace('^\n+', '') | regex_replace('&&[ \\t]+\\\\\\n', '&& ') | regex_replace('\\n+', ' ; ') | regex_replace('(?s)^[^\\n]*\\n(.*)', '\\1')
+    # replacements, borrowed from line-in-file <N>
+    shell_script: "{{ lookup('file', path_src) | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') |regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]UID(.*)$', '\\g<1>' + install_uid + '\\g<2>') | regex_replace('^(.*?)[$]UID(.*)$', '\\g<1>' + install_uid + '\\g<2>') |regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') | regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') | regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') | regex_replace('^(.*?)[$]SECRET(.*)$', '\\g<1>' + mysecret + '\\g<2>') }}"
+    shell_dir: "{%if o_tmpdir %}/tmp/ansible/{{ install_user }}/shell{% else %}{{ install_home }}{% endif %}"
+  vars:
+    mysecret: "{{ install_secret | default('') }}"
+    o_tmpdir: "{{ path_options | default('') | regex_search('cdtmp') is not none }}"
+
+- name: "[task-shell-tasks] dir={{ shell_dir }}"
+  file: { state: directory, path: "{{ shell_dir }}", owner: "{{ path_owner }}", group: "{{ path_group }}", mode: "0760" }
+
+- name: "[task-shell-tasks] script"
+  copy: { content: "{{ shell_script }}", dest: "{{ path_dest }}", owner: "{{ path_owner }}", group: "{{ path_group }}", mode: "{{ path_mode }}" }
+
+- name: "[task-shell-tasks] run"
+  shell: cd {{ shell_dir | quote }} ; bash {{ path_dest }}
+  become: true
+  become_user: "{{ install_user }}"
+
+- file: { path: "{{ path_witness }}", state: touch }

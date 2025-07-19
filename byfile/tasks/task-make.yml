@@ -1,0 +1,15 @@
+#
+#	task-make.yml
+#Sat Nov  2 09:47:06 PM CET 2024
+---
+
+#   vars:
+#       path
+
+- include_tasks: common-pathDecompose.yml
+- set_fact: { make_witness: "/opt/ansible/witness/witness:make:{{ path_dest }}" }
+
+- { stat: { path: "{{ make_witness }}" }, register: w }
+- name: "[task-make] tasks {Level: 4}"
+  include_tasks: task-make-tasks.yml
+  when: not w.stat.exists

@@ -1,0 +1,9 @@
+#
+#   task-package.yml
+#Sun Oct 13 05:05:25 PM CEST 2024
+
+- include_tasks: common-pathDecompose.yml
+- debug: { msg: "package_os='{{ package_os }}'" }
+- name: "[task-package] System={{ package_name }} dist='{{ ansible_distribution }}' {Level: 2}"
+  include_tasks: "task-package:{{ ansible_distribution }}.yml"
+  when: package_os == '' or package_os == ansible_distribution

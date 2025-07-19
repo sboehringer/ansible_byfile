@@ -1,0 +1,14 @@
+#
+#   task-dir.yml
+#Sun Sep 22 03:24:44 PM CEST 2024
+---
+
+- include_tasks: common-pathDecompose.yml
+
+- name: "[task-dir] dest={{ path_dest }} mode={{ path_mode }}"
+  file:
+    path: "{{ path_dest }}"
+    state: directory
+    owner: "{{ path_owner }}"
+    group: "{{ path_group }}"
+    mode: "{{ path_mode_dir }}"

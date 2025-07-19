@@ -1,0 +1,16 @@
+#
+#   task-package:cpanm.yml
+#Mon Oct 14 10:14:37 PM CEST 2024
+---
+
+#   vars:
+#       path: file to pacakge lsit
+#       install_user: user to install under
+#       install_home
+
+- include_tasks: common-pathDecompose.yml
+- name: "[task-package:cpanm] list={{ path_dest }}"
+  become: true
+  become_user: "{{ install_user }}"
+  cpanm: { name: "{{ item }}", locallib: "{{ install_home }}/.local/lib/perl5" }
+  loop: "{{ lookup('file', path_src).split(\"\n\")  | select('match', '^[^#].*') | list }}"

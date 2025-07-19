@@ -1,0 +1,22 @@
+#
+#   task-package:rpms.yml
+#Sun Nov 10 01:50:07 PM CET 2024
+# derived from: task-package:rpm.yml
+---
+
+#   <!> task assumes root user
+#
+#   vars:
+#       path: pacakge list
+#
+#       install_user: user to install under
+#       install_home
+
+- include_tasks: common-pathDecompose.yml
+- name: "[task-package:rpms] list={{ path_dest }}"
+  include_tasks: task-package:rpms-tasks.yml
+  vars:
+    rpm_path: "{{ item }}"
+    rpm_basename: "{{ item | basename }}"
+    rpm_witness: "{{ witness_dir }}/witness:{{ item | regex_replace('^~/', '-|') | regex_replace('/', '|') }}"
+  loop: "{{ lookup('file', path_src).split(\"\n\") | select('match', '^[^#].*') | list }}"

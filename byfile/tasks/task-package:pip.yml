@@ -1,0 +1,16 @@
+#
+#   task-package:pip.yml
+# Sun 09 Jan 2022 10:10:00 PM CET
+---
+
+#   vars:
+#       path: file to pacakge lsit
+#       install_user: user to install under
+
+- name: "[task-package:pip] list={{ path_dest }}"
+  become: true
+  become_user: "{{ install_user }}"
+  pip:
+    name: "{{ item }}"
+    executable: pip3
+  loop: "{{ lookup('file', path).split(\"\n\")  | select('match', '^[^#].*') | list }}"

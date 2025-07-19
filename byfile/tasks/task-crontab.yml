@@ -1,0 +1,25 @@
+#
+#   task-crontab.yml
+# Sun Oct 13 11:46:53 AM CEST 2024
+
+- include_tasks: common-pathDecompose.yml
+
+- name: "[task-cron] {{ crontab_name }} min={{ crontab_min }} hr={{ crontab_hour }} day={{ crontab_day }} mon={{ crontab_month }} dow={{ crontab_day_of_week }} {Level: 4}"
+  cron:
+    name: "{{ crontab_name }}"
+    minute: "{{ crontab_min }}"
+    hour: "{{ crontab_hour }}"
+    day: "{{ crontab_day }}"
+    month: "{{ crontab_month }}"
+    weekday: "{{ crontab_day_of_week | default('*') }}"
+    job: "{{ lookup('file', path_src) }}"
+    user: "{{ install_user | default('root') }}"
+  when: crontab_min != '@reboot'
+
+- name: "[task-cron] {{ crontab_name }} date=@reboot {Level: 2}"
+  cron:
+    name: "{{ crontab_name }}"
+    special_time: reboot
+    job: "{{ lookup('file', path_src) }}"
+    user: "{{ install_user | default('root') }}"
+  when: crontab_min == '@reboot'

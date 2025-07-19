@@ -1,0 +1,33 @@
+#
+#	task-mount.yml
+#Sun Nov  3 09:52:27 PM CET 2024
+
+#   vars:
+#       path
+
+- include_tasks: common-pathDecompose.yml
+
+- name: "[task-mount] facts pt={{ mount_point }} opt={{ mount_options}} dev={{mount_device}} type={{ mount_fstype }} pass={{ mount_passno }} {Level: 6}"
+  set_fact:
+    mount_fstype_o: "{{ mount_options | regex_replace('^.*?fstype=([^,]*).*', '\\1') }}"
+    m_options: "{{ ( mount_options + ',options=defaults' ) | regex_replace('^.*?options=([^,]*).*', '\\1') | regex_replace(':', ',') }}"
+
+# <!> mount point creation fails when already mounted -> check existence
+- name: "[task-mount] mount point -e {{ path_dest }} {Level: 7}"
+  stat: { path: "{{ path_dest }}" }
+  register: mpstat
+- name: "[task-mount] mount point path={{ path_dest }} {Level: 5}"
+  file:
+    path: "{{ path_dest }}"
+    state: directory
+    mode: "{{ mount_point_mode }}"
+  when: ( not mpstat.stat.exists )
+
+- name: "[task-mount] mount pt={{ mount_point }} opt={{ mount_options}} dev={{mount_device}} type={{ mount_fstype }} pass={{ mount_passno }} {Level: 5}"
+  mount:
+    path: "{{ path_dest }}"
+    fstype: "{{ mount_fstype | default(mount_fstype_o) }}"
+    src: "{{ mount_device }}"
+    opts: "{{ m_options }}"
+    passno: "{{ mount_passno }}"
+    state: present

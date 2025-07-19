@@ -1,0 +1,36 @@
+#
+#	common/defintions.yml
+# Sat Nov 28 18:59:44 CET 2020
+#
+#	moved from server/main.yml to make avaialbe for desktop role
+#
+#   define facts
+#   create infrastructure directories (for witnesses)
+---
+- name: "[common-definitions] global facts {Level: 4}"
+  set_fact:
+    os_version: "{{ hostvars[inventory_hostname].ansible_distribution_version }}"
+    ansible_home: "{{ lookup('env','ANSIBLE_HOME') }}"
+    ansible_control_user: "{{ lookup('env','USER') }}"
+    ansible_user_home: "{{ lookup('env','HOME') }}"
+    # needed for install-rpms
+    rpm_default_arch: "{{ features[inventory_hostname]['rpmarch'] | default('x86_64') }}"
+    hostarch: "{{ ansible_architecture }}"
+    hostdist: "{{ ansible_distribution | regex_replace('[/]', '|') }}"
+    var_prefix: lev0
+    witness_dir: /opt/ansible/witness
+    rpm_dir: /tmp/ansible/rpm
+    # default home directory, if no user is specified
+    install_user: root
+    install_home: /root
+    install_uid: "0"
+  tags: [ always ]
+- name: "[common-definitions] global facts stage 2 {Level: 4}"
+  set_fact: { hostcombo: "{{ hostdist }}_{{ ansible_architecture }}" }
+
+- name: "[common-definitions] template_vars host={{ inventory_hostname }} dist={{ ansible_distribution }} version={{ os_version }} rpmarch={{ rpmarch }} combo={{ hostcombo }} ansible_home={{ ansible_home }} ansible_user_home={{ ansible_user_home }}"
+  set_fact: { "{{ item.key }}": "{{ item.value }}" }
+  loop: "{{ features[inventory_hostname]['template_vars'] | default({}) | dict2items }}"
+
+- name: "[common-definitions] witness dir {Level: 5}"
+  file: { path: "{{ witness_dir }}", state: directory }

@@ -1,0 +1,140 @@
+#
+#	common-pathDecompose.yml
+#Sun Sep 22 06:17:15 PM CEST 2024
+
+#
+#   input:
+#       path:           path tb decomposed
+#       install_user:   user to choose as owner (root)
+#       install_home:   home folder for home-relative pathes
+
+# (\\d+.)?([@]|file|dir|extract|line|link|make|makeinit|rsync|secret|shell|package:sys|package:cpanm|package:pip|package:flatpak|crontab|crontab:env|mount)
+# filename (file/path creators): path;owner;group;mode;options;options2
+# filename (crontab): name;min;hour;day;month;day-of-week
+# filename (mount): point;dev;fstype;options;passno;mode
+# filename (repo): name;prio;enabled|disabled;options(autoimport|no_autoimport,no_autorefresh)
+# filename (rpms): name;arch
+# filename (service): name;enabled/disabled;started/stopped;user/system
+# filename (secret): key;attribute(password)
+# filename (ssh:push): host;user
+# filename (ssh:ssh_host): host;user
+# filename (extract): extractionspath;user;group;mode;options
+# filename (shell): name;user
+# filename (package): name;options(force);operating system
+
+- name: "[common-pathDecompose] facts {Level: 7}"
+  set_fact:
+    path_src: "{{ path }}"
+    path_dest: "{{ dest }}"
+    # w/ bar-coding of pathes
+    path_dest_raw: "{{ pathraw }}"
+    path_owner: "{{ owner }}"
+    path_group: "{{ group }}"
+    path_mode: "{% if mode == ''%}0640{% else %}{{ mode }}{% endif %}"
+    path_mode_dir: "{% if mode == ''%}0750{% else %}{{ mode }}{% endif %}"
+    path_in_home: "{{ is_home }}"
+    # uncooked destination
+    path_basename: "{{ basename }}"
+    path_options: "{{ options }}"
+    path_options2: "{{ options2 }}"
+    path_options_split: "{{ options | split(',') }}"
+    path_once: "{{ options | regex_search('once') is not none }}"
+    path_witness: "{{ witness_dir }}/witness:{{ pathraw }}"
+    path_backup: "{{ backup_dir | default('/opt/ansible/backup') }}/{{ role_name | default('generic') }}_{{ inventory_hostname }}_{{ install_user | default('root') }}_{{ basename }}-{{ now(utc=true,fmt='%Y%m%dT%H%M%S') }}"
+    path_dir: "{{ dest | dirname }}"
+    path_ifabsent: "{{ options | regex_search('if_absent') is not none }}"
+
+    # crontab (alternative naming)
+    crontab_path: "{{ path }}"
+    crontab_name: "{{ pathraw }}"
+    crontab_min: "{{ owner | regex_replace('^\\s*$', '*') }}"
+    crontab_hour: "{{ group | regex_replace('^\\s*$', '*') }}"
+    crontab_day: "{{ mode | regex_replace('^\\s*$', '*') }}"
+    crontab_month: "{{ options | regex_replace('^\\s*$', '*') }}"
+    crontab_day_of_week: "{{ options2 | regex_replace('^\\s*$', '*') }}"
+
+    # package (alternative naming)
+    package_path: "{{ path }}"
+    package_os: "{{ group }}"
+
+    # extraction (alternative naming)
+    extract_dir: "{{ dest | dirname }}"
+    extract_moveto: "{{ dest | basename }}"
+    # do not move extracted dir
+    extract_asis: "{% if options | regex_search('asis') is not none %}True{% else %}False{% endif %}"
+    extract_mode: "{% if mode == ''%}0750{% else %}{{ mode }}{% endif %}"
+
+    # ssh:push (alternative naming)
+    ssh_host: "{{ dest }}"
+    ssh_user: "{{ owner }}"
+
+    # mount (alternative naming)
+    mount_point: "{{ dest }}"
+    mount_device: "{{ ownerraw | regex_replace('^-[|]', homeraw + '/' ) | regex_replace('[|]', '/') | regex_replace('[|]', '/') }}"
+    mount_fstype: "{{ groupraw }}"
+    mount_options: "{% if mode == '' %}defaults{% else %}mode{% endif %}"
+    mount_passno: "{% if options == '' %}2{% else %}options{% endif %}"
+    mount_point_mode: "{% if options2 == '' %}0664{% else %}options2{% endif %}"
+
+    # build (alternative naming)
+    make_target: "{% if mode == '' %}all{% else %}{{ mode }}{% endif %}"
+    make_owner: "{{ owner }}"
+    make_group: "{{ group }}"
+    make_configargs: "{{ options2 }}"
+
+    # repo (alternative naming)
+    repo_name: "{{ pathraw }}"
+    repo_prio: "{% if ownerraw == '' %}100{% else %}{{ ownerraw }}{% endif %}"
+    repo_enabled: "{% if group | regex_search('^enabled$') is not none %}True{% else %}False{% endif %}"
+    repo_autoimport: "{% if mode | regex_search('no_autoimport') is not none %}False{% else %}True{% endif %}"
+    repo_autorefresh: "{% if mode | regex_search('no_autorefresh') is not none %}False{% else %}True{% endif %}"
+
+    # link (alternative naming)
+    link_force: "{% if options | regex_search('no_force') is not none %}false{% else %}true{% endif %}"
+
+    # rpm (alternative naming)
+    rpm_arch: "{% if ownerraw == '' %}{{ rpm_default_arch }}{% else %}{{ ownerraw }}{% endif %}"
+
+    # service (alternative naming)
+    service_name: "{{ pathraw }}"
+    service_enabled: "{% if ownerraw == '' or ownerraw == 'enabled' %}True{% else %}False{% endif %}"
+    service_started: "{% if groupraw == '' %}started{% else %}{{ groupraw }}{% endif %}"
+    service_system: "{% if mode == '' or mode == 'system' %}True{% else %}False{% endif %}"
+
+    # secret (alternative naming)
+    secret_key: "{{ dest }}"
+    secret_attribute: "{% if ownerraw == '' %}password{% else %}{{ ownerraw }}{% endif %}"
+
+    # shell (alternative naming)
+    shell_user:  "{% if ownerraw == '' %}{{ install_user | default( 'root' ) }}{% else %}{{ ownerraw }}{% endif %}"
+
+    # package (alternative naming)
+    package_name: "{{ pathraw }}"
+    package_force: "{% if ownerraw | regex_search('force') is not none %}True{% else %}False{% endif %}"
+
+  vars:
+    pathraw: "{{ path | regex_replace('^.*/(?:(?:\\d+.)?[@]?(?:[a-zA-Z][a-zA-Z0-9:]*[ _;-]))([^/;]*)[^/]*$', '\\1') }}"
+    ownerraw:
+      "{{path | regex_replace('(?:.*/(?:(?:\\d+.)?[@]?(?:[a-zA-Z][a-zA-Z0-9:]*[ _;-]))(?:[^/;]*;){1}([^/;]*)[^/]*$)|(.*)', '\\1') }}"
+    groupraw:
+      "{{path | regex_replace('(?:.*/(?:(?:\\d+.)?[@]?(?:[a-zA-Z][a-zA-Z0-9:]*[ _;-]))(?:[^/;]*;){2}([^/;]*)[^/]*$)|(.*)', '\\1') }}"
+    moderaw:
+      "{{path | regex_replace('(?:.*/(?:(?:\\d+.)?[@]?(?:[a-zA-Z][a-zA-Z0-9:]*[ _;-]))(?:[^/;]*;){3}([^/;]*)[^/]*$)|(.*)', '\\1') }}"
+    options:
+      "{{path | regex_replace('(?:.*/(?:(?:\\d+.)?[@]?(?:[a-zA-Z][a-zA-Z0-9:]*[ _;-]))(?:[^/;]*;){4}([^/;]*)[^/]*$)|(.*)', '\\1') }}"
+    options2:
+      "{{path | regex_replace('(?:.*/(?:(?:\\d+.)?[@]?(?:[a-zA-Z][a-zA-Z0-9:]*[ _;-]))(?:[^/;]*;){5}([^/;]*)[^/]*$)|(.*)', '\\1') }}"
+    basenameraw: "{{ pathraw | basename }}"
+    basename:
+      "{% if path_substitute is defined and path_substitute[basenameraw] is defined %}{{ path_substitute[basenameraw] }}{% else %}{{ basenameraw }}{% endif %}"
+    homeraw: "{{ install_home | default('/root') }}"
+    dest: "{{ basename | regex_replace('^-[|]', homeraw + '/' ) | regex_replace('[|]', '/') | regex_replace('[|]', '/') }}"
+    is_home_raw: "{{ basename | regex_search('^-|') }}"
+    is_home:
+      "{% if is_home_raw == '' %}false{% else %}true{% endif %}"
+    owner:
+      "{% if ownerraw == '' and is_home %}{{ install_user | default( 'root' ) }}{% elif ownerraw == '' %}root{% else %}{{ ownerraw }}{% endif %}"
+    group:
+      "{% if groupraw == '' %}{{ install_group | default(install_user) }}{% else %}{{ groupraw }}{% endif %}"
+    # needs to to be resolved by file-type
+    mode: "{{ moderaw }}"

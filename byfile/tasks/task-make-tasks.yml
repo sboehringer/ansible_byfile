@@ -1,0 +1,99 @@
+#
+#	task-make-tasks.yml
+#Sat Nov  2 10:11:40 PM CET 2024
+---
+
+#   vars:
+#       path
+#           path components: name;user;group;target;options;configargs
+#           options: Ncores=d,makefile=s,noconfigure,noinstall
+#           content: 1st line: path2archive, 2nd...: configure/install
+
+# make install
+#           can have sections (mb non-empty, if present):
+#               path2archive (1st line)
+#               -{10,} Configure\nSHELL SCRIPT\n-{10,} End Configure\n
+#               -{10,} Install\nSHELL SCRIPT\n-{10,} End Install\n
+#
+
+- name: "[task-make-tasks] facts"
+  set_fact:
+    make_dir_up: "{{'/opt/ansible/tmp/build/' + make_owner + '/' }}"
+    make_dir: "{{'/opt/ansible/tmp/build/' + make_owner + '/' + path_dest}}"
+    make_archive: "{{ lookup('file', path_src) | regex_replace('(?s)^([^\\n]*)\\n(?:.*)$', '\\1') }}"
+    Ncores: "{{ (path_options + ',Ncores=1') | regex_replace('.*?Ncores=(\\d+).*', '\\1') }}"
+    o_noconfigure: "{{ path_options | regex_search('noconfigure') }}"
+    o_noinstall: "{{ path_options | default('') | regex_search('noinstall') }}"
+    # make sure makefile present, extract first occurance
+    o_makefile: "{{ (path_options + ',makefile=Makefile') | regex_replace('.*?makefile=([^,;]+).*', '\\1') }}"
+    make_scripts_raw: "{{ lookup('file', path_src) | regex_replace('(?s)^(?:[^\\n]*)\\n?(.*)$', '\\1') }}"
+- name: "[task-make-tasks] facts, 2nd stage, make_scripts_raw='{{ make_scripts_raw }}' {Level: 6}"
+  set_fact:
+    make_scripts: "{%if make_scripts_raw == '' %}{{ std_script }}{% else %}{{ make_scripts_raw }}{% endif %}"
+  vars:
+    std_script: |+
+      ---------- Configure
+      echo No initialization script
+      ---------- End Configure
+      ---------- Install
+      echo No install script
+      ---------- End Install
+- name: "[task-make-tasks] facts, 3rd stage {Level: 6}"
+  set_fact:
+    # cut sections delimited by '-----------', replace new lines by ';'
+    make_init: "{{ make_scripts | regex_replace('(?s).*-{8,} Configure\\n(.*?)\\n-{8,} End Configure(?:\\n.*|$)', '\\1') | regex_replace('\\n', ' ; ') }}"
+    make_install: "{{ make_scripts | regex_replace('(?s).*-{8,} Install\\s(.*?)\\s-{8,} End Install(?:\\s.*|$)', '\\1') | regex_replace('\\n', ' ; ') }}"
+
+- name: "[task-make-tasks] dir={{ make_dir }} archive={{ make_archive }} user={{ make_owner }} group={{ make_group }} target={{ make_target }} make_init='{{ make_init }}' make_install='{{ make_install }}'"
+  file:
+    path: "{{ make_dir_up }}"
+    state: directory
+    owner: "{{ make_owner }}"
+    group: "{{ make_group }}"
+    mode: "0700"
+
+- name: "[task-make-tasks] push archive & extract"
+  include_tasks: task-extract-tasks.yml
+  vars:
+    extract_input: "{{ make_archive }}"
+    extract_dir: "{{ make_dir_up }}"
+    extract_moveto: "{{ path_dest }}"
+    path_mode: 0700
+    extract_witness: "{{ witness_dir }}/witness:makeextract:{{ make_archive | basename }}"
+    # path_owner, path_group already set
+
+- name: "[task-make-tasks] configure args={{ make_configargs }}"
+  shell: cd {{ make_dir | quote }} ; ./configure {{ make_configargs }} && touch {{ make_dir | quote }}/ansible_sem_configure
+  args:
+    creates: "{{ make_dir | quote }}/ansible_sem_configure"
+  become: true
+  become_user: "{{ make_owner }}"
+  when: "o_noconfigure == ''"
+
+- name: "[task-make-tasks] init={{ make_init }}"
+  shell: cd {{ make_dir | quote }}/ ; {{ make_init }} ; make -f {{ o_makefile }} -j {{ Ncores }} {{ make_target }} && touch {{ make_dir | quote }}//ansible_sem_make
+  args:
+    creates: "{{ make_dir | quote }}/ansible_sem_make"
+  become: true
+  become_user: "{{ make_owner }}"
+  when: make_init != ''
+
+- name: "[task-make-tasks] install"
+  shell: cd {{ make_dir | quote }}/ ; make -f {{ o_makefile }} -j {{ Ncores }} install && touch {{ make_dir | quote }}//ansible_sem_install
+  args:
+    creates: "{{ make_dir | quote }}//ansible_sem_install"
+  become: true
+  become_user: "{{ build_install_user | default('root') }}"
+  when: "o_noinstall == ''"
+
+#- debug: { msg: "Install: cd {{ make_dir | quote }}/ ; sh -c {{ script_install | quote }}" }
+
+- name: "[task-make-tasks] run install script"
+  shell: "{{ make_install }}"
+  args:
+    chdir: "{{ make_dir }}"
+  become: true
+  become_user: "{{ make_owner }}"
+  when: make_install != ''
+
+- file: { path: "{{ make_witness }}", state: touch }

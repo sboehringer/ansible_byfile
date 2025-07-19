@@ -1,0 +1,73 @@
+#
+#   extract.yml
+# Thu 14 Oct 2021 10:37:19 PM CEST
+---
+
+#   vars:
+#       extract_input: path to input
+#       extract_dir: destination folder
+#       extract_type: defaults to extract_ext
+#       extract_moveto: rename top level folder to this
+#       path_owner: owner
+#       path_group: owner
+#       path_mode: mode
+
+# - name: "Extract file facts"
+#   set_fact:
+#     extract_ext: "{{ extract_filename | default(extract_input | basename) | regex_replace('.*[.]([^.]+)$', '\\1') }}"
+#
+# - name: "Extract file facts"
+#   set_fact:
+#     ansible_home: "{{ lookup('env','ANSIBLE_HOME') }}"
+#     owner: "{{ extract_owner | default('root') }}"
+#     archive_file: "{{ extract_input | basename }}"
+# - name: "[task-extract-tasks] Extract file facts {Level: 5}"
+#   set_fact:
+#     group: "{{ extract_group | default(owner) }}"
+#     extract_dir: "{{ extract_dir | default('/tmp/ansible/extract_' + owner) }}"
+#     mode: "{{ extract_mode | default('0740') }}"
+#     admin_user: "{{ lookup('env','USER') }}"
+#     extract_dest: "{{ extract_dir }}/{{ extract_filename | default(extract_input | basename) }}"
+#- debug: { msg: "File extension: {{ extract_ext }}, cp: '{{ extract_input }}' ->  '{{ extract_dest }}'" }
+- set_fact: { extract_dest: "{{ extract_dir }}/{{ extract_input | basename }}" }
+
+- name: "[task-extract-tasks] Create destination folder='{{ extract_dir }} owner={{ path_owner }} group={{ path_group }}' {Level: 5}"
+  file:
+    path: "{{ extract_dir }}"
+    state: directory
+    owner: "{{ path_owner }}"
+    group: "{{ path_group }}"
+    # execute bit set by default
+    mode: "{{ extract_mode }}"
+
+- name: "[task-extract-tasks] Copy archive to host '{{ extract_input }}' -> '{{ extract_dest }}' {Level: 4}"
+  copy:
+    src: "{{ extract_input }}"
+    dest: "{{ extract_dest }}"
+    owner: "{{ path_owner }}"
+    group: "{{ path_group }}"
+    # <!> do not use path_mode, which refers to directory permissions
+    mode: "0640"
+
+- name: "[task-extract-tasks] extract:{{ extract_type | default('tgz') }} {Level: 2}"
+  include_tasks: "task-extract:{{ extract_type | default('tgz') }}.yml"
+
+- set_fact: { extract_top_folder: "{{ extract_top_folder_raw.stdout }}" }
+- set_fact: { extract_target: "{% if extract_moveto is defined and extract_moveto != '' %}{{ extract_moveto }}{% else %}{{ extract_top_folder }}{% endif %}" }
+
+- debug: { msg: "[task-extract-tasks] Archive top folder: '{{ extract_top_folder }}'; Extraction dir: {{ extract_dir }}, Target: '{{ extract_target }}'" }
+- debug: { msg: "[task-extract-tasks] mv {{ extract_dir | quote }}/{{ extract_top_folder | quote }} {{ extract_dir | quote }}/{{ extract_moveto | quote }}" }
+
+- name: "[task-extract-tasks] Move '{{ extract_dir }}/{{ extract_top_folder }}' -> '{{ extract_dir }}/{{ extract_moveto }}' asis={{ extract_asis }} {Level: 5}"
+  shell: mv {{ extract_dir | quote }}/{{ extract_top_folder | quote }} {{ extract_dir | quote }}/{{ extract_target | quote }}
+  #become: true
+  #become_user: "{{ path_owner }}"
+  when: extract_moveto is defined and extract_moveto != '' and extract_moveto != extract_top_folder and extract_moveto != '__ignore__' and not extract_asis
+  args: { creates: "{{ extract_dir }}/{{ extract_target }}" }
+
+- name: "[task-extract-tasks] Remove Input {Level: 4}"
+  file:
+    path: "{{ extract_dest }}"
+    state: absent
+
+- file: { path: "{{ extract_witness }}", state: touch }
