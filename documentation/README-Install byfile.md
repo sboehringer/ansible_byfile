@@ -45,9 +45,9 @@ The folder structure uses a uniform folder structure "Standard folders" as speci
 
 The __byfile__ specification is a list of files the file name of which describes the configuration and the content might contain additional information needed to complete the action. The spcecification of file names is given in the [file types](#filetypes) section. Special entries are __templates__ which are folders starting with __@__. These folders will be followed recursively. Valid configuration actions are:
 
- * [dir](#filedir): create dir
- * extract: extract archive
- * file: install file
+ * [dir](#type_dir): create dir
+ * [extract](#type_extract): extract archive
+ * [file](#type_file): install file
  * ssh:push install public user ssh key as authorized key
 
 ### Witnesses
@@ -90,11 +90,26 @@ Regular paths need to start with '-' or '|'. The '-' character is interpreted as
 
 # <a name="filetypes"></a>File types
 
-## <a name="filedir"></a>__dir__
+## <a name="type_file"></a>__file__
+
+Copy file from control host to path.
+
+Specification: `file` *path*;*owner*;*group*;*mode*;*options(once|if_absent)*
+
+ * *path*: encoded path of destination location
+ * *owner*: onwer of the file (default: *install_user*; `root` for host files)
+ * *group*: group of file (default: *install_user*; `root` for host files)
+ * *mode*: file mode (default: mode of ansible file)
+ * *Options*
+   * once: install file only one (controlled by a witness file in the witness folder (default: /opt/ansible))
+   * if_absent: only install file, if non-existing
+ * __file content__: content of destination file
+
+## <a name="type_dir"></a>__dir__
 
  * create dir with path given (mkdir -p)
 
-## __extract__
+## <a name="type_extract"></a>__extract__
 
 Extract tgz, t7z, zip into destination Folder
 
@@ -183,11 +198,6 @@ The text is not templated. It is subject to the following substitutions:
 
 # Old documentation
 
-### __file__
-
-*Options*
-
- * once: install file only one (controlled by a witness file in the witness folder (default: /opt/ansible))
 
 ### __link__
 
