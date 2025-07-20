@@ -138,7 +138,7 @@ Specification: `repo` *name*;*prio*;*enabled|disabled*;*options(autoimport|no_au
  * *prio*: numeric repository priority
  * *enabled|disabled*: status of repository; either __enabled__ or __disbled__ 
  * *options(autoimport|no_autoimport,no_autorefresh)*: repostitory options; __autoimport__: import GPG keys, __no_autorefresh__: prevent automatic refresh
- * file conent: URL of repository
+ * __file conent__: URL of repository
 
 ## __package__
 
@@ -163,17 +163,16 @@ Specification: `ssh:push` *host*;*user*
   * *host*: host to install the key on. The ansible controller has to have root access to this host
   * *user*: user to install the key under
 
-# Old documentation
+## __line__
 
-### __file__
+Control a line within *path*.
 
-*Options*
+Specification: `line` *path*
 
- * once: install file only one (controlled by a witness file in the witness folder (default: /opt/ansible))
-
-### __line__
-
-Control a line within *path*. The first line of the file content contains the pattern to match. The second line contains the content, which has to match the pattern.
+  * *path*: file of which one line is to be managed
+  * __file content__: two lines specifying line content
+    * 1st line: regex to identify line
+    * 2nd line: content of the line
 
 The text is not templated. It is subject to the following substitutions:
 
@@ -181,6 +180,14 @@ The text is not templated. It is subject to the following substitutions:
  * $HOME: path of home folder
  * $UID: user id
  * $SECRET: current secret as set by file type __secret__
+
+# Old documentation
+
+### __file__
+
+*Options*
+
+ * once: install file only one (controlled by a witness file in the witness folder (default: /opt/ansible))
 
 ### __link__
 
