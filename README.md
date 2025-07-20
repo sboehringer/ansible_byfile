@@ -4,7 +4,7 @@
 
 Ansible role that allows file-based admintistration for heterogeneous environments. In most cases, no playbooks are required and boilerplate free administration is possible.
 
-## Documenation
+## Documentation
 
 Filenames and sometimes file content contain all information for the administration task. Filder `documentation` describes all supported tasks.
 
