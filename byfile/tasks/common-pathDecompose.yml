@@ -47,8 +47,8 @@
     # crontab (alternative naming)
     crontab_path: "{{ path }}"
     crontab_name: "{{ pathraw }}"
-    crontab_min: "{{ owner | regex_replace('^\\s*$', '*') }}"
-    crontab_hour: "{{ group | regex_replace('^\\s*$', '*') }}"
+    crontab_min: "{{ owner | regex_replace('^(\\s*|root)$', '*') | regex_replace('[|]', '/') }}"
+    crontab_hour: "{{ group | regex_replace('^(\\s*|root)$', '*') }}"
     crontab_day: "{{ mode | regex_replace('^\\s*$', '*') }}"
     crontab_month: "{{ options | regex_replace('^\\s*$', '*') }}"
     crontab_day_of_week: "{{ options2 | regex_replace('^\\s*$', '*') }}"

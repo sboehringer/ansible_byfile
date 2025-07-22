@@ -45,6 +45,8 @@ The folder structure uses a uniform folder structure "Standard folders" as speci
 
 The __byfile__ specification is a list of files the file name of which describes the configuration and the content might contain additional information needed to complete the action. The spcecification of file names is given in the [file types](#filetypes) section. Special entries are __templates__ which are folders starting with __@__. These folders will be followed recursively. Valid configuration actions are:
 
+ * [crontab](#type_crontab): Manage crontab entry
+ * [crontab:env](#type_crontab_env): Manage crontab environment
  * [dir](#type_dir): create dir
  * [extract](#type_extract): extract archive
  * [file](#type_file): install file
@@ -196,6 +198,41 @@ The text is not templated. It is subject to the following substitutions:
  * $UID: user id
  * $SECRET: current secret as set by file type __secret__
 
+## <a name="type_crontab"></a>__crontab__
+
+Manage crontab entry.
+
+Specification: `crontab` *name*;*min*;*hour*;*day*;*month*;*day-of-week*
+
+  * *name*: identifier for the crontab entry
+   * A `*/min` specification has to be given as `*|min`
+  * *min*: minutes entry of the crontab entry, or `@reboot`
+  * *hour*: hour entry of the crontab entry
+  * *day*: day entry of the crontab entry
+  * *month*: month entry of the crontab entry
+  * *day-of-week*: day-of-week entry of the crontab entry
+  * __file content__: single line with the command to be executed
+
+Examples:
+
+  * Run on Mondays, 12:15 : `crontab myJob;15;12;*;*;1`
+  * Run every 15 minutes: `crontab myJob2;*|15`
+
+## <a name="type_crontab_env"></a>__crontab:env__
+
+Specification: `crontab:env`
+
+  * no file name based paramters
+  * __file content__: lines with key-value paris `KEY=VALUE`
+  * Implicitly defined variables `$HOME`, `$USER`, `$UID` are substituted by values corresponding to the current user.
+
+
+Example content:
+
+    USER=$USER
+    HOME=$HOME
+    PERL5LIB=$HOME/src/privatePerl:$HOME/lib/perl5:$HOME/perl5/lib/perl5/arm-linux-gnueabihf-thread-multi-64int
+
 # Old documentation
 
 
@@ -329,26 +366,6 @@ Package specification
 
 Files of the form *service name*;enabled/disabled;started/stopped;user/system
 
-# Crontab
-
-## File names
-
-  * Regular entry: 'crontab *name*;*min*;*hour*;*day*;*month*;*day-of-week*'. Moment specifier can be truncated. Leading to '*' as default value.
-  * Environment: 'crontab_env'; contain key-value pairs as in a regular crontab
-
-Examples:
-
-  * crontab myJob;15;12;*;*;1  Run on Mondays, 12:15
-
-### crontab_env
-
-Example content:
-
-    USER=$USER
-    HOME=$HOME
-    PERL5LIB=$HOME/src/privatePerl:$HOME/lib/perl5:$HOME/perl5/lib/perl5/arm-linux-gnueabihf-thread-multi-64int
-
-Implicitly defined variables `$HOME`, `$USER`, `$UID` are substituted by values corresponding to the current user.
 
 # Mounts
 
