@@ -8,6 +8,7 @@
   cron:
     name: "{{ crontab_name }}"
     minute: "{{ crontab_min }}"
+    #minute: "{{ '*/5' }}"
     hour: "{{ crontab_hour }}"
     day: "{{ crontab_day }}"
     month: "{{ crontab_month }}"
