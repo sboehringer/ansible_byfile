@@ -8,7 +8,7 @@ Ansible role that allows file-based admintistration for heterogeneous environmen
 
 Filenames and sometimes file content contain all information for the administration task. Filder `documentation` describes all supported tasks.
 
-## Installaion
+## Installation
 
 Subfolder `byfile` has to be linked into the `roles` folder of ansible. It is suggested to create a foler `roles_meta` in the ansible folder and clone this repo into this folder. Under these assumptions, `bash install.sh` will create the required softlink.
 
@@ -27,6 +27,9 @@ Suggested tree
 ├── [8.0K]  roles_meta
 │   └── [4.0K]  ansible_byfile
 ```
+
+__Note__: `byfile` expects envirnoment variable `$ANSIBLE_HOME` to be set to the main ansible folder.
+__Note__: `byfile` expects the folder `files` in the `$ANSIBLE_HOME` folder and will create a subfolder `byfile` therin.
 
 ## Git
 Assuming that the `${ANSIBLE_HOME}` folder is maintained using git, a submodule should be added after cloning.
