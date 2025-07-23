@@ -28,7 +28,7 @@ Suggested tree
 │   └── [4.0K]  ansible_byfile
 ```
 
-__Note__: `byfile` expects envirnoment variable `$ANSIBLE_HOME` to be set to the main ansible folder.
+__Note__: `byfile` expects environment variable `$ANSIBLE_HOME` to be set to the main ansible folder.
 
 __Note__: `byfile` expects the folder `files` in the `$ANSIBLE_HOME` folder and will create a subfolder `byfile` therein.
 
