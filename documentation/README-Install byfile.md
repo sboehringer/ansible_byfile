@@ -50,7 +50,8 @@ The __byfile__ specification is a list of files the file name of which describes
  * [dir](#type_dir): create dir
  * [extract](#type_extract): extract archive
  * [file](#type_file): install file
- * ssh:push install public user ssh key as authorized key
+ * [rsync](#type_rsync): rsync dir/file
+ * [ssh:push](#type_ssh_push) install public user ssh key as authorized key
 
 ### Witnesses
 
@@ -171,7 +172,7 @@ Specification: `package:sys` *name*;*options*;*OS*
 
 ## __ssh__
 
-### __ssh:push__
+### <a name="type_ssh_push"></a>__ssh:push__
 
 Install the public key generated (or present) for the user as authorized key on another host.
 
@@ -205,13 +206,14 @@ Manage crontab entry.
 Specification: `crontab` *name*;*min*;*hour*;*day*;*month*;*day-of-week*
 
   * *name*: identifier for the crontab entry
-   * A `*/min` specification has to be given as `*|min`
   * *min*: minutes entry of the crontab entry, or `@reboot`
   * *hour*: hour entry of the crontab entry
   * *day*: day entry of the crontab entry
   * *month*: month entry of the crontab entry
   * *day-of-week*: day-of-week entry of the crontab entry
   * __file content__: single line with the command to be executed
+
+__Note__: A `*/min` specification has to be given as `*|min`
 
 Examples:
 
@@ -223,7 +225,7 @@ Examples:
 Specification: `crontab:env`
 
   * no file name based paramters
-  * __file content__: lines with key-value paris `KEY=VALUE`
+  * __file content__: lines with key-value pairs `KEY=VALUE`
   * Implicitly defined variables `$HOME`, `$USER`, `$UID` are substituted by values corresponding to the current user.
 
 
@@ -232,6 +234,20 @@ Example content:
     USER=$USER
     HOME=$HOME
     PERL5LIB=$HOME/src/privatePerl:$HOME/lib/perl5:$HOME/perl5/lib/perl5/arm-linux-gnueabihf-thread-multi-64int
+
+### <a name="type_rsync"></a>__rsync__
+
+Rsync to *path*.
+
+Specification: `rsync` *path*;*owner*;*group*;*mode*;*options*
+
+ * *path*: destination of `rsync` operation
+ * *user*: owner
+ * *group*: group
+ * *mode*: file/dir mode
+ * __file content__: source of `rsync` operation
+ 
+__Note__: cannot be remote as destination will be remote; mount remote files via sshfs as a workaround
 
 # Old documentation
 
@@ -273,16 +289,6 @@ The __make__ type handles the *path* argument exceptionally.
 A section started with `-{8,} Configure` and terminated by `-{8,} End Configure` contains a shell script run before calling `make`.
 
 A section `-{8,} Install` and terminated by `-{8,} End Install` contains a script run after calling `make`.
-
-### __rsync__
-
-`rsync` to *path*. First line of file inidicates source.
-
-Used components:
-
- * *path*: destination of `rsync` operation
- * *user*;*group*;*mode*: ownership/access state
- * file content: source of `rsync` operation, __Note__: cannot be remote as destination will be remote; mount remote files via sshfs as a workaround
 
 ### __secret__
 
