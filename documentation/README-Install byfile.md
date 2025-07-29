@@ -168,7 +168,7 @@ Specification: `package:sys` *name*;*options*;*OS*
 
  * *name*: name of package
  * *options*: __force__ to force (re-)installation of package
- * *OS*: specify to which OS the package list applies. Packages will only be installed when hist string matches __ansible_distribution__. This should be used when packages are not installed at the host level but, for example, as part of a *@template*
+ * *OS*: specify to which OS the package list applies. Packages will only be installed when this string matches __ansible_distribution__. This should be used when packages are not installed at the host level but, for example, as part of a *@template*
 
 ## __ssh__
 
