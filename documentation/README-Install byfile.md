@@ -259,10 +259,10 @@ __Note__: cannot be remote as destination will be remote; mount remote files via
 
 ## <a name="type_mount"></a>__mount__
 
-Specification: `mount` *device*;*mount point*;*fs type*;*options*
+Specification: `mount` *mount point*;*device*;*fs type*;*options*
 
-  * *device*: Path to device (`/dev/DEV`) or `LABEL=`*devlabel`
   * *mount point*: Path of mount point
+  * *device*: Path to device (`/dev/DEV`) or `LABEL=`*devlabel`
   * *fs type*: Filsystem type
   * *options*: Options passed to `mount`
 
@@ -270,8 +270,8 @@ __Note__: Fields are as usual for `fstab` entries and path transformations are a
 
 __Example__:
 
-  * Device: `LABEL=mylable`
   * Mount point: `|mnt|mountpoint`
+  * Device: `LABEL=mylable`
   * Type: `ext4`
   * Options: `rw,relatime,noauto`
   * Filename: `mount LABEL=mylable;|mnt|mountpoint;ext4;rw,relatime,noauto`
