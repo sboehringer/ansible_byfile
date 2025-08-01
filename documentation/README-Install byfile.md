@@ -259,12 +259,14 @@ __Note__: cannot be remote as destination will be remote; mount remote files via
 
 ## <a name="type_mount"></a>__mount__
 
-Specification: `mount` *mount point*;*device*;*fs type*;*options*
+Specification: `mount` *mount point*;*device*;*fs type*;*options*;*pass no*;*permissions*
 
   * *mount point*: Path of mount point
   * *device*: Path to device (`/dev/DEV`) or `LABEL=`*devlabel`
   * *fs type*: Filsystem type
-  * *options*: Options passed to `mount`
+  * *options*: Options passed to `mount` (default: defaults)
+  * *pass no*: Pass number in fstab (default: 2)
+  * *permissions*: Permission of mount point (default: 0664)
 
 __Note__: Fields are as usual for `fstab` entries and path transformations are applies for *device* and *mount point*.
 
