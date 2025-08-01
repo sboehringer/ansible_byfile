@@ -3,7 +3,7 @@
 The meta-role `byfile` allows to manage administration tasks purely by creating files. Except for `roles/myRole/tasks/main.yml` and `roles/myRole/vars/main.yml` yaml files, no further tasks have to be specified. Most configuration tasks are directly specified in file names. To use `byfile` a standard ansible folder structure is required. An example is given below.
 
 ```
-.../
+...
 ├── [ 48K]  files
 │   ├── [4.0K]  byfile		# created and maintained by byfile
 ├── [8.0K]  roles_meta
@@ -31,6 +31,8 @@ The meta-role `byfile` allows to manage administration tasks purely by creating 
 │   ├── [4.0K]  ...			# other roles
 ...
 ```
+
+# Task specification
 
 ## Template for use with task common/install-generic.yml
 
@@ -89,7 +91,7 @@ The __byfile__ specification is a list of files the file name of which describes
 
 ### Witnesses
 
-# Vars
+# Variables in `vars/main.yml`
 
  * capabilities
    * *hostname*
@@ -110,11 +112,11 @@ The __byfile__ specification is a list of files the file name of which describes
 
 # Files
 
-Files (*file*) are named '*path*;*user*;*group*;*permission*;*type*;*options*;*destination*'. In general, the content of the file is installed into *path* after a path transformation. All fields except for *path* can be omitted assuming default values.
+Files (*file*) are named '*task* *path*;*user*;*group*;*permission*;*type*;*options*;*destination*'. In general, the content of the file is installed into *path* after a path transformation. All fields except for *path* can be omitted assuming default values.
 
 Files starting with '#' are ignored.
 
-Files starting with '^\d+-?' will have this prefix removed. Can be used to control the order of files.
+Files starting with '^\d+-?' will have this prefix removed. Can be used to control the order of tasks.
 
 ## Path transformations
 
@@ -145,7 +147,12 @@ Specification: `file` *path*;*owner*;*group*;*mode*;*options(once|if_absent)*
 
 ## <a name="type_dir"></a>__dir__
 
- * create dir with path given (mkdir -p)
+Create dir on host (mkdir -p).
+
+ * *path*: encoded path of directory path
+ * *owner*: onwer of the directory (default: *install_user*; `root` for host files)
+ * *group*: group of directory (default: *install_user*; `root` for host files)
+ * *mode*: directory mode (default: mode of ansible file)
 
 ## <a name="type_extract"></a>__extract__
 
