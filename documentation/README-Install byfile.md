@@ -1,15 +1,47 @@
-# Template for use with task common/install-generic.yml
+# Overview
 
-## Overview
+The meta-role `byfile` allows to manage administration tasks purely by creating files. Except for `roles/myRole/tasks/main.yml` and `roles/myRole/vars/main.yml` yaml files, no further tasks have to be specified. Most configuration tasks are directly specified in file names. To use `byfile` a standard ansible folder structure is required.
 
-Task `common/install-generic.yml` performs configurations according to a file based system description. The template for the `main.yml` (playbook) of a new role can be chosen as follows.
+```
+.../
+├── [ 48K]  files
+│   ├── [4.0K]  byfile		# created and maintained by byfile
+├── [8.0K]  roles_meta
+│   └── [4.0K]  ansible_byfile
+├── [100K]  roles
+│   ├── [4.0K]  byfile -> ../roles_meta/ansible_byfile/byfile
+│   ├── [ 73K]  myRole
+│   │   ├── [4.7K]  tasks
+│   │   │   └── [ 703]  main.yml                    # include byfile/custom plays
+│   │   └── [4.4K]  vars
+│   │       └── [ 403]  main.yml                    # host/user parameters
+│   │   ├── [ 59K]  files
+│   │   │   ├── [8.0K]  host:*                      # configure all host in role                                         
+│   │   │   │   └── [4.0K]  user:*                  # all users all hosts                                          
+│   │   │   ├── [8.0K]  host:myhost                 # configure host myhost                                         
+│   │   │   │   └── [4.0K]  user:myuser             # configure user myuser                                          
+│   │   │   │       └── [  36]  crontab rsync;0;12  # install crontab entry                              
+│   │   │   │   │   └── [   0]  ...
+│   │   │   ├── [ 27K]  templates                                               
+│   │   │   │   ├── [5.3K]  05 @mini-role           # reusable set of confs
+│   │   │   │   │   ├── [   0] ...
+│   │   │   └── [4.6K]  user:*                      # configs for all users
+│   │   │       ├── [ 350]  crontab:env             # define contrab env vars
+│   │   │       ├── [   0]  ...
+│   ├── [4.0K]  ...			# other roles
+...
+```
+
+## Template for use with task common/install-generic.yml
+
+Task `byfile/install-generic.yml` performs configurations according to a file based system description. The template for the `main.yml` (playbook) of a new role can be chosen as follows.
 
 	- name: Definitions
-	  include_role: { name: common, tasks_from: definitions.yml, apply: { tags: [ always ] } }
+	  include_role: { name: byfile, tasks_from: definitions.yml, apply: { tags: [ always ] } }
 	  tags: [ always ]
 
 	- name: Install standard folders
-	  include_role: { name: common, tasks_from: install-generic.yml, apply: { tags: [ install-std ] } }
+	  include_role: { name: byfile, tasks_from: install-generic.yml, apply: { tags: [ install-std ] } }
 	  vars:
 	    global_install_folder: "roles/myRole/files"
 	    users: "{{ features[inventory_hostname]['users'] }}"
