@@ -255,6 +255,26 @@ Specification: `rsync` *path*;*owner*;*group*;*mode*;*options*
  
 __Note__: cannot be remote as destination will be remote; mount remote files via sshfs as a workaround
 
+
+## <a name="type_mount"></a>__mount__
+
+Specification: `mount` *device*;*mount point*;*fs type*;*options*
+
+  * *device*: Path to device (`/dev/DEV`) or `LABEL=`*devlabel`
+  * *mount point*: Path of mount point
+  * *fs type*: Filsystem type
+  * *options*: Options passed to `mount`
+
+__Note__: Fields are as usual for `fstab` entries and path transformations are applies for *device* and *mount point*.
+
+__Example__:
+
+  * Device: `LABEL=mylable`
+  * Mount point: `|mnt|mountpoint`
+  * Type: `ext4`
+  * Options: `rw,relatime,noauto`
+  * Filename: `mount LABEL=mylable;|mnt|mountpoint;ext4;rw,relatime,noauto`
+
 # Old documentation
 
 
