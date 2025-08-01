@@ -134,7 +134,7 @@ The archive should have a single folder at the top level, e.g. `/myfolder`. This
 
 Usually starts with `pushd `*destdir*. `input1` then corresponds to *subdir*.
 
-*tjz*
+*t7z*
 Cave: `a` adds files, archive should not exist.
 Several inputs `input1` are meaningful only for `asis` option.
 
