@@ -65,7 +65,8 @@ The __byfile__ specification is a list of files the file name of which describes
 
 ## User vars
 
- * ssh: true/false, boolean to indicate wheter ssh key should be generated (needed by ssh:push)
+ * ssh: true/false, boolean to indicate wheter ssh key should be generated (needed by 
+ )
  * ssh_key_tyep: rsa/ecdsa, type of ssh key (default: rsa)
  * ssh_key_size: key size for the key. Needs to be set for ecdsa with valid key sizes (256, 384, 512). Rsa has valid key sizes 2048, 4096 (default: 4096)
  * template_vars: dict containing key/value pairs used for template interpolation
@@ -183,6 +184,8 @@ Specification: `ssh:push` *host*;*user*
 
   * *host*: host to install the key on. The ansible controller has to have root access to this host
   * *user*: user to install the key under
+
+The key itself is automatically retrieved by the user tasks and maintained in the `${ANSIBLE_HOME}/files/byfile` hierarchy.
 
 ## __line__
 
