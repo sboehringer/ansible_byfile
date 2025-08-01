@@ -1,1 +1,1 @@
-/home/user1/Documents/ansible_main_folder1/ansible/roles/byfile/tasks/common-package-zypper.yml
+./common-package-zypper.yml

@@ -53,10 +53,6 @@
     crontab_month: "{{ options | regex_replace('^\\s*$', '*') }}"
     crontab_day_of_week: "{{ options2 | regex_replace('^\\s*$', '*') }}"
 
-    # package (alternative naming)
-    package_path: "{{ path }}"
-    package_os: "{{ group }}"
-
     # extraction (alternative naming)
     extract_dir: "{{ dest | dirname }}"
     extract_moveto: "{{ dest | basename }}"
@@ -109,8 +105,10 @@
     shell_user:  "{% if ownerraw == '' %}{{ install_user | default( 'root' ) }}{% else %}{{ ownerraw }}{% endif %}"
 
     # package (alternative naming)
+    package_path: "{{ path }}"
     package_name: "{{ pathraw }}"
     package_force: "{% if ownerraw | regex_search('force') is not none %}True{% else %}False{% endif %}"
+    package_os: "{% if group == '' %}ansible_distribution{% else %}{{ groupraw }}{% endif %}"
 
   vars:
     pathraw: "{{ path | regex_replace('^.*/(?:(?:\\d+.)?[@]?(?:[a-zA-Z][a-zA-Z0-9:]*[ _;-]))([^/;]*)[^/]*$', '\\1') }}"
