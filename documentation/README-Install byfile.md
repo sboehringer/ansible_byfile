@@ -1,6 +1,6 @@
 # Overview
 
-The meta-role `byfile` allows to manage administration tasks purely by creating files. Except for `roles/myRole/tasks/main.yml` and `roles/myRole/vars/main.yml` yaml files, no further tasks have to be specified. Most configuration tasks are directly specified in file names. To use `byfile` a standard ansible folder structure is required.
+The meta-role `byfile` allows to manage administration tasks purely by creating files. Except for `roles/myRole/tasks/main.yml` and `roles/myRole/vars/main.yml` yaml files, no further tasks have to be specified. Most configuration tasks are directly specified in file names. To use `byfile` a standard ansible folder structure is required. An example is given below.
 
 ```
 .../
@@ -434,16 +434,4 @@ Package specification
 Files of the form *service name*;enabled/disabled;started/stopped;user/system
 
 
-# Mounts
-
-Files are named '*path*;*user*;*group*;*permission*;*type*;*options*;*destination*'. In general, the content of the file is installed into *path* after a path transformation. All fields except for *path* can be omitted assuming default values. File content is ignored.
-
-A mount is given as *dev*;*mount point*;*type*;*options*. Fields are as usuaual for `fstab` and path transformations are applies as for installed files (see section Files).
-
-Example:
-
-  * Device: `LABEL=mylable`
-  * Mount point: `|mnt|mountpoint`
-  * Type: `ext4`
-  * Options: `rw,relatime,noauto`
-  * Filename: `LABEL=mylable;|mnt|mountpoint;ext4;rw,relatime,noauto`
+# Best practices
