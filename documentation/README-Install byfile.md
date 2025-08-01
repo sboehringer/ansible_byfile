@@ -162,13 +162,15 @@ Specification: `repo` *name*;*prio*;*enabled|disabled*;*options(autoimport|no_au
 
 ### __package:sys__
 
-Install system pacakges.
+Install system packages.
 
 Specification: `package:sys` *name*;*options*;*OS*
 
  * *name*: name of package
  * *options*: __force__ to force (re-)installation of package
  * *OS*: specify to which OS the package list applies. Packages will only be installed when this string matches __ansible_distribution__. This should be used when packages are not installed at the host level but, for example, as part of a *@template*
+
+__Note__: When no *OS* is specified, the value of __ansible_distribution__ is assumed. When installed in the `host` folder, the packages can be assumed to match the host. If installed in `host:*`, *OS* should be specified unless all hosts are homogeneous with respect to OS.
 
 ## __ssh__
 
