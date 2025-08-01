@@ -293,7 +293,7 @@ Specification: `rsync` *path*;*owner*;*group*;*mode*;*options*
  * *mode*: file/dir mode
  * __file content__: source of `rsync` operation
  
-__Note__: cannot be remote as destination will be remote; mount remote files via sshfs as a workaround
+__Note__: source cannot be remote as destination will be remote; mount remote files via sshfs as a workaround
 
 
 ## <a name="type_mount"></a>__mount__
