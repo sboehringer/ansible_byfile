@@ -7,10 +7,10 @@
 
 - include_tasks: common-pathDecompose.yml
 
-- name: "[task-mount] facts pt={{ mount_point }} opt={{ mount_options}} dev={{mount_device}} type={{ mount_fstype }} pass={{ mount_passno }} {Level: 6}"
+- name: "[task-mount] facts pt={{ mount_point }} opt={{ mount_options }} dev={{mount_device}} type={{ mount_fstype }} pass={{ mount_passno }} {Level: 6}"
   set_fact:
     mount_fstype_o: "{{ mount_options | regex_replace('^.*?fstype=([^,]*).*', '\\1') }}"
-    m_options: "{{ ( mount_options + ',options=defaults' ) | regex_replace('^.*?options=([^,]*).*', '\\1') | regex_replace(':', ',') }}"
+    #m_options: "{{ ( mount_options + ',options=defaults' ) | regex_replace('^.*?options=([^,]*).*', '\\1') | regex_replace(':', ',') }}"
 
 # <!> mount point creation fails when already mounted -> check existence
 - name: "[task-mount] mount point -e {{ path_dest }} {Level: 7}"
@@ -28,6 +28,7 @@
     path: "{{ path_dest }}"
     fstype: "{{ mount_fstype | default(mount_fstype_o) }}"
     src: "{{ mount_device }}"
-    opts: "{{ m_options }}"
+    #opts: "{{ m_options }}"
+    opts: "{{ mount_options }}"
     passno: "{{ mount_passno }}"
     state: present

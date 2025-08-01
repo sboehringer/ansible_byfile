@@ -68,7 +68,7 @@
     mount_point: "{{ dest }}"
     mount_device: "{{ ownerraw | regex_replace('^-[|]', homeraw + '/' ) | regex_replace('[|]', '/') | regex_replace('[|]', '/') }}"
     mount_fstype: "{{ groupraw }}"
-    mount_options: "{% if mode == '' %}defaults{% else %}mode{% endif %}"
+    mount_options: "{% if mode == '' %}defaults{% else %}{{ mode }}{% endif %}"
     mount_passno: "{% if options == '' %}2{% else %}options{% endif %}"
     mount_point_mode: "{% if options2 == '' %}0664{% else %}options2{% endif %}"
 
