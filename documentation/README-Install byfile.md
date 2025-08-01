@@ -50,6 +50,7 @@ The __byfile__ specification is a list of files the file name of which describes
  * [dir](#type_dir): create dir
  * [extract](#type_extract): extract archive
  * [file](#type_file): install file
+ * [package:sys](#type_package_sys): install system packages
  * [rsync](#type_rsync): rsync dir/file
  * [ssh:push](#type_ssh_push) install public user ssh key as authorized key
 
@@ -160,7 +161,7 @@ Specification: `repo` *name*;*prio*;*enabled|disabled*;*options(autoimport|no_au
 
 ## __package__
 
-### __package:sys__
+### <a name="type_package_sys"></a>__package:sys__
 
 Install system packages.
 
