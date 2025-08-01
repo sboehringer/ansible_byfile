@@ -50,6 +50,7 @@ The __byfile__ specification is a list of files the file name of which describes
  * [dir](#type_dir): create dir
  * [extract](#type_extract): extract archive
  * [file](#type_file): install file
+ * [mount](#type_mount): mount volumes
  * [package:sys](#type_package_sys): install system packages
  * [rsync](#type_rsync): rsync dir/file
  * [ssh:push](#type_ssh_push) install public user ssh key as authorized key
