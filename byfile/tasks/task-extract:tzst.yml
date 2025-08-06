@@ -1,0 +1,30 @@
+#
+#   task-extract-tzst.yml
+#   based on: task-extract-t7z.yml
+#Wed Aug  6 08:27:59 PM CEST 2025
+---
+
+# <p> vars
+#   extract_input: path to tzst-file [ expect full path ]
+#   path_owner: owner (default: root)
+#   path_group: group (default: owner
+#   path_mode: mode of files (default: 0700)
+#   extract_dir: destination folder (default: /tmp/ansible_zip_{{ path_owner }}
+#   extract_dest: destination folder (default: /tmp/ansible_zip_{{ path_owner }}
+
+# create archive: tar cf - input1 ... | 7za a -mx9 -si myarchive.t7z
+
+- name: "[task-extract:tzst] determine top-folder '{{ extract_dest }}'"
+  shell: "zstd -d --stdout {{ extract_dest | quote }} | tar --list | head -n 1 | perl -pe 's{/$}{}'"
+  register: extract_top_folder_raw
+  become: true
+  become_user: "{{ path_owner }}"
+
+- debug: { msg: "[extract:tzst] {{ extract_dir }}/{{ extract_top_folder_raw.stdout }}" }
+# create archive: tar cf - myFolder | 7za a -mx9 -si myArchive.t7z
+- name: "[task-extract:tzst] dest='{{ extract_dest }}' owner={{ path_owner }} topfolder='{{ extract_top_folder_raw.stdout }}'"
+  shell: "cd {{ extract_dir | quote }} ; zstd -d --stdout {{ extract_dest | quote }} | tar xf -"
+  become: true
+  become_user: "{{ path_owner }}"
+  # extraction controlled through witness
+  #args: { creates: "{{ extract_dir }}/{{ extract_top_folder_raw.stdout }}" }

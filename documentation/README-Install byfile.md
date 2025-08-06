@@ -187,6 +187,9 @@ Several inputs `input1` are meaningful only for `asis` option.
 
 	zip ~/tmp/myarchive.zip input1 ...
 
+*zstd*
+
+	tar cf - input | zstd -19 -z -o ~/tmp/myarchive.tzst
 
 ## __repo__
 
