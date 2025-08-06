@@ -165,7 +165,7 @@ Specification: `extract` *destdir|subdir*;*user*;*group*;*mode*;*options*
  * *user*;*group*;*mode*: ownership/access state
  * *options*:
     * `asis`: do not perform rename. *subdir* is ignored and should be named `__ignore__`. Currently, `asis` is not heeded. Instead the `__ignore__` *subdir* triggers this behavior
- * file content: source path of archive file
+ * __file content__: source path of archive file
 
 The archive should have a single folder at the top level, e.g. `/myfolder`. This folder is then moved (and renamed) to *path*.
 
