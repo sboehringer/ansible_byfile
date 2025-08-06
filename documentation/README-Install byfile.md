@@ -272,7 +272,8 @@ Specification: `crontab:env`
 
   * no file name based paramters
   * __file content__: lines with key-value pairs `KEY=VALUE`
-  * Implicitly defined variables `$HOME`, `$USER`, `$UID` are substituted by values corresponding to the current user.
+
+__Note__: Implicitly defined variables `$HOME`, `$USER`, `$UID` are substituted by values corresponding to the current user.
 
 
 Example content:
