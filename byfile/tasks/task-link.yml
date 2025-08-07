@@ -17,6 +17,6 @@
     group: "{{ path_group }}"
     force: "{{ link_force }}"
     state: link
-    follow: False           # owener/group of link and not pointed to file
+    follow: False           # owner/group of link and not of the pointed-to file
   vars:
     link_src: "{{ lookup('file', path_src) | regex_replace(\"\\n.*\",  '' ) | regex_replace('^~/', install_home + '/') }}"
