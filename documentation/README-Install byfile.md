@@ -84,6 +84,7 @@ The __byfile__ specification is a list of files the file name of which describes
  * [dir](#type_dir): create dir
  * [extract](#type_extract): extract archive
  * [file](#type_file): install file
+ * [link](#type_link): create symbolic link
  * [mount](#type_mount): mount volumes
  * [package:sys](#type_package_sys): install system packages
  * [rsync](#type_rsync): rsync dir/file
@@ -145,6 +146,19 @@ Specification: `file` *path*;*owner*;*group*;*mode*;*options(once|if_absent)*
    * if_absent: only install file, if non-existing
  * __file content__: content of destination file
 
+## <a name="type_link"></a>__link__
+
+Create symbolic link.
+
+Specification: `link` *path*;*owner*;*group*;*mode*;*options*
+
+ * *path*: encoded path of where symbolic link location (link destination)
+ * *owner*: onwer of the file (default: *install_user*; `root` for host files)
+ * *group*: group of file (default: *install_user*; `root` for host files)
+ * *mode*: file mode (default: mode of ansible file)
+ * *Options*: none defined
+ * __file content__: path of file which the symbolic links points to (link source)
+
 ## <a name="type_dir"></a>__dir__
 
 Create dir on host (mkdir -p).
@@ -167,7 +181,7 @@ Specification: `extract` *destdir|subdir*;*user*;*group*;*mode*;*options*
     * `asis`: do not perform rename. *subdir* is ignored and should be named `__ignore__`. Currently, `asis` is not heeded. Instead the `__ignore__` *subdir* triggers this behavior
  * __file content__: source path of archive file
 
-The archive should have a single folder at the top level, e.g. `/myfolder`. This folder is then moved (and renamed) to *path*.
+__Note__: The archive should have a single folder at the top level, e.g. `/myfolder`. This folder is then moved (and renamed) to *path*.
 
 ### __Creation of archives__
 
@@ -324,9 +338,6 @@ __Example__:
 # Old documentation
 
 
-### __link__
-
-Create symbolic link at _path_ pointing to _destination_.
 
 ### __make__
 
