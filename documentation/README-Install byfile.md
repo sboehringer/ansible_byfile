@@ -88,6 +88,7 @@ The __byfile__ specification is a list of files the file name of which describes
  * [mount](#type_mount): mount volumes
  * [package:sys](#type_package_sys): install system packages
  * [rsync](#type_rsync): rsync dir/file
+ * [service](#type_service) Manage systemd services
  * [ssh:push](#type_ssh_push) install public user ssh key as authorized key
 
 ### Witnesses
@@ -316,6 +317,8 @@ __Note__: source cannot be remote as destination will be remote; mount remote fi
 
 ## <a name="type_mount"></a>__mount__
 
+Manage volume mounting.
+
 Specification: `mount` *mount point*;*device*;*fs type*;*options*;*pass no*;*permissions*
 
   * *mount point*: Path of mount point
@@ -335,9 +338,18 @@ __Example__:
   * Options: `rw,relatime,noauto`
   * Filename: `mount LABEL=mylable;|mnt|mountpoint;ext4;rw,relatime,noauto`
 
+## <a name="type_service"></a>__sevice__
+
+Manage systemd services.
+
+Specification: `service` *service name*;*boot status*;*momentary status*;*type* no*;*permissions*
+
+  * *service name*: name of the service to be managed
+  * *boot status*: activation of service at boot time: enabled/disabled
+  * *momentary status*: status after ansible run: started/stopped
+  * *type*: type of service: user/system
+
 # Old documentation
-
-
 
 ### __make__
 
@@ -450,10 +462,6 @@ Package specification
  * *package name* (*e.g.* io.freetubeapp.FreeTube)
  * comment lines starting with '#'
  * empty lines
-
-# Services
-
-Files of the form *service name*;enabled/disabled;started/stopped;user/system
 
 
 # Best practices
