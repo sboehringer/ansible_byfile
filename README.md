@@ -1,4 +1,4 @@
-# Ansible byfile: 0-overhead administration
+# Ansible byfile: boilerplate free administration
 
 ## Introduction
 
