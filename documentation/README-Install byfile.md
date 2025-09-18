@@ -263,6 +263,13 @@ The text is not templated. It is subject to the following substitutions:
  * $UID: user id
  * $SECRET: current secret as set by file type __secret__
 
+Example:
+
+```
+# BORG BACKUP ansible$
+export BORG_PASSPHRASE="$SECRET" # BORG BACKUP ansible
+```
+
 ## <a name="type_crontab"></a>__crontab__
 
 Manage crontab entry.
@@ -286,9 +293,10 @@ Examples:
 
 ## <a name="type_crontab_env"></a>__crontab:env__
 
-Specification: `crontab:env`
+Specification: `crontab:env *description*`
 
-  * no file name based paramters
+  * no file name based parameters
+  * *description* can be used to document the content and is ignored 
   * __file content__: lines with key-value pairs `KEY=VALUE`
 
 __Note__: Implicitly defined variables `$HOME`, `$USER`, `$UID` are substituted by values corresponding to the current user.
@@ -465,3 +473,6 @@ Package specification
 
 
 # Best practices
+
+## Ad-hoc hosts
+
