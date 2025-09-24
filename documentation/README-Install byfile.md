@@ -84,6 +84,7 @@ The __byfile__ specification is a list of files the file name of which describes
  * [dir](#type_dir): create dir
  * [extract](#type_extract): extract archive
  * [file](#type_file): install file
+ * [line](#type_line): control line within file
  * [link](#type_link): create symbolic link
  * [mount](#type_mount): mount volumes
  * [package:sys](#type_package_sys): install system packages
@@ -245,13 +246,14 @@ Specification: `ssh:push` *host*;*user*
 
 The key itself is automatically retrieved by the user tasks and maintained in the `${ANSIBLE_HOME}/files/byfile` hierarchy.
 
-## __line__
+## <a name="type_line"></a>__line__
 
 Control a line within *path*.
 
-Specification: `line` *path*
+Specification: `line` *path*;*tag*
 
   * *path*: file of which one line is to be managed
+  * *tag*: if several lines are to be controlled in a file, a *tag* can be used to disambiguate file names
   * __file content__: two lines specifying line content
     * 1st line: regex to identify line
     * 2nd line: content of the line
