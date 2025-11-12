@@ -17,6 +17,8 @@ The meta-role `byfile` allows to manage administration tasks purely by creating 
 │   │       └── [ 403]  main.yml                    # host/user parameters
 │   │   ├── [ 59K]  files
 │   │   │   ├── [8.0K]  host:*                      # configure all host in role                                         
+│   │   │   │   └── [4.0K]  host                    # host configuration                                          
+│   │   │   │       └── [ 536]  file |ect|nanorc    # file task (on each host)                              
 │   │   │   │   └── [4.0K]  user:*                  # all users all hosts                                          
 │   │   │   ├── [8.0K]  host:myhost                 # configure host myhost                                         
 │   │   │   │   └── [4.0K]  user:myuser             # configure user myuser                                          
@@ -105,7 +107,7 @@ The __byfile__ specification is a list of files the file name of which describes
 
  * ssh: true/false, boolean to indicate wheter ssh key should be generated (needed by 
  )
- * ssh_key_tyep: rsa/ecdsa, type of ssh key (default: rsa)
+ * ssh_key_type: rsa/ecdsa, type of ssh key (default: rsa)
  * ssh_key_size: key size for the key. Needs to be set for ecdsa with valid key sizes (256, 384, 512). Rsa has valid key sizes 2048, 4096 (default: 4096)
  * template_vars: dict containing key/value pairs used for template interpolation
  * luks: specification of luks container to be  mounted at `/home/__user__`; dict with keys:
@@ -160,6 +162,8 @@ Specification: `link` *path*;*owner*;*group*;*mode*;*options*
  * *mode*: file mode (default: mode of ansible file)
  * *Options*: none defined
  * __file content__: path of file which the symbolic links points to (link source)
+
+__Note__: `~` is allowd to indicate home folder of current user
 
 ## <a name="type_dir"></a>__dir__
 
