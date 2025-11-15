@@ -84,7 +84,7 @@
 #
 - { stat: { path: "{{ global_install_folder }}/user:*" }, delegate_to: localhost, register: ufgg }
 #- debug: { msg: "path: {{ global_install_folder }}/generic/users status: {{ ufgg }}" }
-- name: "Std Folders all hosts all users {{ global_install_folder }}/user:*"
+- name: "Std Folders: all hosts all users {{ global_install_folder }}/user:*"
   include_tasks: task-taskFolder.yml
   vars:
     path: "{{ global_install_folder }}/user:*"
@@ -97,7 +97,7 @@
 #   <p> generic all users on host
 #
 - { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:*" }, delegate_to: localhost, register: ufg }
-- name: "[install-user-tasks] Std Folders this hosts all users {{ global_install_folder }}/hosts/{{ inventory_hostname }}/user:*"
+- name: "[install-user-tasks] Std Folders: this hosts all users {{ global_install_folder }}/host:{{ inventory_hostname }}/user:*"
   include_tasks: task-taskFolder.yml
   vars:
     path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:*"
@@ -107,11 +107,25 @@
   when: ufg.stat.exists
 
 #
+#   <p> user specific standard folder, all hosts
+#
+- { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }}" }, delegate_to: localhost, register: ufs }
+- debug: { msg: "Path {{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }} exists: {{ ufs.stat.exists }}" }
+- name: "[install-user-tasks] Std Folders: all hosts this user {{ global_install_folder }}/host:*/user:{{ user.name }}"
+  include_tasks: task-taskFolder.yml
+  vars:
+    path: "{{ global_install_folder }}/host:*/user:{{ user.name }}"
+    service_user: "{{ user.name }}"
+    template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
+  tags: [ generic_igh ]
+  when: ufs.stat.exists
+
+#
 #   <p> user specific standard folder
 #
 - { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }}" }, delegate_to: localhost, register: ufs }
 - debug: { msg: "Path {{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }} exists: {{ ufs.stat.exists }}" }
-- name: "[install-user-tasks] Std Folders this hosts this user {{ global_install_folder }}/hosts/{{ inventory_hostname }}/users/{{ user.name }}"
+- name: "[install-user-tasks] Std Folders: this hosts this user {{ global_install_folder }}/hosts/{{ inventory_hostname }}/users/{{ user.name }}"
   include_tasks: task-taskFolder.yml
   vars:
     path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }}"

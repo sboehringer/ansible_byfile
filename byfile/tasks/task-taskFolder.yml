@@ -15,7 +15,7 @@
     #paths: [ "{% if not ps.stat.islnk %}{{ path }}{% else %}{{ ps.stat.lnk_target }}{% endif %}" ]
     paths: [ "{{ path }}" ]
     file_type: any
-    patterns: [ "^(\\d+.)?([@]|repo|file|template|dir|extract|line|link|make|makeinit|rsync|secret|shell|package:sys|package:cpanm|package:pip|package:flatpak|package:rpms?|crontab|crontab:env|mount|ssh:pull|ssh:push|ssh:hostkey|service).*$" ]
+    patterns: [ "^(\\d+.)?([@]|log|repo|file|template|dir|extract|line|link|make|makeinit|rsync|secret|shell|package:sys|package:cpanm|package:pip|package:flatpak|package:rpms?|crontab|crontab:env|mount|ssh:pull|ssh:push|ssh:hostkey|service).*$" ]
     use_regex: True
     recurse: False
   delegate_to: localhost
@@ -27,7 +27,7 @@
 # re-add path to file dt problems when using ansible recursively
 #   i.e. path or another backup variable is overwritten
 - set_fact:
-    install_objects_raw1: "{% for p in install_objects_ordered.files %}{{ path }}/{{ p.path | regex_replace('^(.*?)/((?:repo)[^/]*)$', '02-@-\\2') |regex_replace('^(.*?)/((?:package:sys)[^/]*)$', '04-@-\\2') | regex_replace('^(.*?)/((?:package:cpanm|package:pip|package:flatpak|package:rpms?)[^/]*)$', '08-@-\\2') | regex_replace('^(.*?)/((?:secret)[^/]*)$', '12-@-\\2') | regex_replace('^(.*?)/((?:dir)[^/]*)$', '16-@-\\2') | regex_replace('^(.*?)/((?:ssh:pull|ssh:push|ssh:hostkey)[^/]*)$', '20-@-\\2') | regex_replace('^(.*?)/((?:file|extract|link|make|makeinit|rsync|template)[^/]*)$', '24-@-\\2') | regex_replace('^(.*?)/((?:line)[^/]*)$', '28-@-\\2') | regex_replace('^(.*?)/((?:shell)[^/]*)$', '32-@-\\2') | regex_replace('^(.*?)/((?:crontab:env)[^/]*)$', '36-@-\\2') | regex_replace('^(.*?)/((?:crontab)[^/]*)$', '40-@-\\2') | regex_replace('^(.*?)/((?:mount)[^/]*)$', '44-@-\\2') | regex_replace('^(.*?)/((?:service)[^/]*)$', '48-@-\\2') | regex_replace('^(.*?)/([@].*)$', '01-@-\\2') | regex_replace('^(.*?)/(\\d+[^/]*)$', '\\2') }}{% if loop.last %}{% else %}-*-{% endif %}{% endfor %}"
+    install_objects_raw1: "{% for p in install_objects_ordered.files %}{{ path }}/{{ p.path | regex_replace('^(.*?)/((?:log)[^/]*)$', '01-@-\\2') | regex_replace('^(.*?)/((?:repo)[^/]*)$', '02-@-\\2') |regex_replace('^(.*?)/((?:package:sys)[^/]*)$', '04-@-\\2') | regex_replace('^(.*?)/((?:package:cpanm|package:pip|package:flatpak|package:rpms?)[^/]*)$', '08-@-\\2') | regex_replace('^(.*?)/((?:secret)[^/]*)$', '12-@-\\2') | regex_replace('^(.*?)/((?:dir)[^/]*)$', '16-@-\\2') | regex_replace('^(.*?)/((?:ssh:pull|ssh:push|ssh:hostkey)[^/]*)$', '20-@-\\2') | regex_replace('^(.*?)/((?:file|extract|link|make|makeinit|rsync|template)[^/]*)$', '24-@-\\2') | regex_replace('^(.*?)/((?:line)[^/]*)$', '28-@-\\2') | regex_replace('^(.*?)/((?:shell)[^/]*)$', '32-@-\\2') | regex_replace('^(.*?)/((?:crontab:env)[^/]*)$', '36-@-\\2') | regex_replace('^(.*?)/((?:crontab)[^/]*)$', '40-@-\\2') | regex_replace('^(.*?)/((?:mount)[^/]*)$', '44-@-\\2') | regex_replace('^(.*?)/((?:service)[^/]*)$', '48-@-\\2') | regex_replace('^(.*?)/([@].*)$', '01-@-\\2') | regex_replace('^(.*?)/(\\d+[^/]*)$', '\\2') }}{% if loop.last %}{% else %}-*-{% endif %}{% endfor %}"
 - debug: { msg: "[task-taskFolder] install_objects_raw1={{ install_objects_raw1 }}" }
 - set_fact: { install_objects: "{{ install_objects_raw1 | split('-*-') | sort }}" }
 
@@ -38,7 +38,7 @@
     myLoopVar: "{{ var_prefix }}_object"
 
 - name: "[task-taskFolder] invoke task {Level: 5}"
-  include_tasks: "task-{{ lookup('vars', ansible_loop_var) | regex_replace('^.*?/([^/]*)$', '\\1') | regex_replace('\\d+-@-', '') | regex_replace('^(?:\\d+.)?([@]\\S+|repo|file|template|dir|extract|line|link|make|makeinit|rsync|secret|shell|package:sys|package:cpanm|package:pip|package:flatpak|package:rpms?|crontab|crontab:env|mount|ssh:pull|ssh:push|ssh:hostkey|service)(?:[ _].*$|$)', '\\1') | regex_replace('^[@].*', 'taskFolder') }}.yml"
+  include_tasks: "task-{{ lookup('vars', ansible_loop_var) | regex_replace('^.*?/([^/]*)$', '\\1') | regex_replace('\\d+-@-', '') | regex_replace('^(?:\\d+.)?([@]\\S+|log|repo|file|template|dir|extract|line|link|make|makeinit|rsync|secret|shell|package:sys|package:cpanm|package:pip|package:flatpak|package:rpms?|crontab|crontab:env|mount|ssh:pull|ssh:push|ssh:hostkey|service)(?:[ _].*$|$)', '\\1') | regex_replace('^[@].*', 'taskFolder') }}.yml"
   vars:
     path: "{{ lookup('vars', ansible_loop_var) | regex_replace('^(.*?)/\\d+-@-', '\\1/') }}"
     var_prefix: "{{ newPrefix }}"

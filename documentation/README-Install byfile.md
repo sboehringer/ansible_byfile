@@ -19,6 +19,8 @@ The meta-role `byfile` allows to manage administration tasks purely by creating 
 │   │   │   ├── [8.0K]  host:*                      # configure all host in role                                         
 │   │   │   │   └── [4.0K]  host                    # host configuration                                          
 │   │   │   │       └── [ 536]  file |ect|nanorc    # file task (on each host)                              
+│   │   │   │   └── [ 536]  file |ect|nanorc        # if not 'host' subfolder exists
+                                                    # tasks are taken from host:*
 │   │   │   │   └── [4.0K]  user:*                  # all users all hosts                                          
 │   │   │   ├── [8.0K]  host:myhost                 # configure host myhost                                         
 │   │   │   │   └── [4.0K]  user:myuser             # configure user myuser                                          
@@ -79,7 +81,7 @@ The folder structure uses a uniform folder structure "Standard folders" as speci
 
 ### byfile specification
 
-The __byfile__ specification is a list of files the file name of which describes the configuration and the content might contain additional information needed to complete the action. The spcecification of file names is given in the [file types](#filetypes) section. Special entries are __templates__ which are folders starting with __@__. These folders will be followed recursively. Valid configuration actions are:
+The __byfile__ specification is a list of files the file name of which describes the configuration and the content might contain additional information needed to complete the action. The specification of file names is given in the [file types](#filetypes) section. Special entries are __templates__ which are folders starting with __@__. These folders will be followed recursively. Valid configuration actions are:
 
  * [crontab](#type_crontab): Manage crontab entry
  * [crontab:env](#type_crontab_env): Manage crontab environment
