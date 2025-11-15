@@ -1,0 +1,16 @@
+#
+#   task-log.yml
+#Fri Nov 14 09:55:49 PM CET 2025
+---
+
+#   vars:
+#       name
+#
+#   file content:
+#       message
+
+- include_tasks: common-pathDecompose.yml
+
+- set_fact: { log_message: "{{ lookup('file', path_src ) }}" }
+- name: "[task-log] name='{{ log_name }}' {Level: 5}"
+  debug: { msg: "{{ log_message }}" }

@@ -29,11 +29,17 @@
   when: igh.stat.exists
 
 #   <p> all hosts
-- { stat: { path: "{{ global_install_folder }}/host:*" }, delegate_to: localhost, register: igg }
-- name: "[install] folder={{ global_install_folder }}/host:*"
+# seperate set_fact as register always overwrites variable
+- { stat: { path: "{{ global_install_folder }}/host:*/host" }, delegate_to: localhost, register: iggRaw }
+- { set_fact: { igg: "{{ iggRaw }}" } }
+- { stat: { path: "{{ global_install_folder }}/host:*" }, delegate_to: localhost, register: iggRaw }
+- { set_fact: { igg: "{{ iggRaw }}" }, when: not igg.stat.exists }
+#- { stat: { path: "{{ global_install_folder }}/host:*" }, delegate_to: localhost, register: igg }
+- debug: { msg: "path={{ igg.stat.path }}" }
+- name: "[install] folder={{ igg.stat.path }}"
   include_tasks: task-taskFolder.yml
   #apply: { tags: [ generic_igg ] }
-  vars: { path: "{{ global_install_folder }}/host:*", install_user: root, template_vars: "{{ features[inventory_hostname]['template_vars'] | default( {} ) }}" }
+  vars: { path: "{{ igg.stat.path }}", install_user: root, template_vars: "{{ features[inventory_hostname]['template_vars'] | default( {} ) }}" }
   tags: [ generic_igg ]
   #when: "not igg.stat.exists"
   when: igg.stat.exists

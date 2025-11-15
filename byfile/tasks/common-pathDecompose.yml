@@ -110,6 +110,9 @@
     package_force: "{% if ownerraw | regex_search('force') is not none %}True{% else %}False{% endif %}"
     package_os: "{% if group == '' %}ansible_distribution{% else %}{{ groupraw }}{% endif %}"
 
+    # debug
+    log_name: "{{ dest }}"
+
   vars:
     pathraw: "{{ path | regex_replace('^.*/(?:(?:\\d+.)?[@]?(?:[a-zA-Z][a-zA-Z0-9:]*[ _;-]))([^/;]*)[^/]*$', '\\1') }}"
     ownerraw:
