@@ -82,12 +82,18 @@
 #
 #   <p> generic all users on all hosts
 #
-- { stat: { path: "{{ global_install_folder }}/user:*" }, delegate_to: localhost, register: ufgg }
+# detect folder
+# seperate set_fact as register always overwrites variable
+- { stat: { path: "{{ global_install_folder }}/host:*/user:*" }, delegate_to: localhost, register: ufggRaw }
+- { set_fact: { ufgg: "{{ ufggRaw }}" } }
+- { stat: { path: "{{ global_install_folder }}/user:*" }, delegate_to: localhost, register: ufggRaw }
+- { set_fact: { ufgg: "{{ ufggRaw }}" }, when: not ufgg.stat.exists }
+#- { stat: { path: "{{ global_install_folder }}/user:*" }, delegate_to: localhost, register: ufgg }
 #- debug: { msg: "path: {{ global_install_folder }}/generic/users status: {{ ufgg }}" }
-- name: "Std Folders: all hosts all users {{ global_install_folder }}/user:*"
+- name: "[install-user-tasks] host:*.user:* path={{ ufgg.stat.path | default('not found') }}"
   include_tasks: task-taskFolder.yml
   vars:
-    path: "{{ global_install_folder }}/user:*"
+    path: "{{ ufgg.stat.path }}"
     service_user: "{{ user.name }}"
     template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
   tags: [ generic_igh ]
@@ -97,10 +103,10 @@
 #   <p> generic all users on host
 #
 - { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:*" }, delegate_to: localhost, register: ufg }
-- name: "[install-user-tasks] Std Folders: this hosts all users {{ global_install_folder }}/host:{{ inventory_hostname }}/user:*"
+- name: "[install-user-tasks] this hosts.{{ inventory_hostname }}:* path={{ ufg.stat.path | default('not found') }}"
   include_tasks: task-taskFolder.yml
   vars:
-    path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:*"
+    path: "{{ ufg.stat.path }}"
     service_user: "{{ user.name }}"
     template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
   tags: [ generic_igh ]
@@ -109,26 +115,25 @@
 #
 #   <p> user specific standard folder, all hosts
 #
-- { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }}" }, delegate_to: localhost, register: ufs }
-- debug: { msg: "Path {{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }} exists: {{ ufs.stat.exists }}" }
-- name: "[install-user-tasks] Std Folders: all hosts this user {{ global_install_folder }}/host:*/user:{{ user.name }}"
+- { stat: { path: "{{ global_install_folder }}/host:*/user:{{ user.name }}" }, delegate_to: localhost, register: usa }
+- debug: { msg: "path={{ usa.stat.path }} exists={{ usa.stat.exists }}" }
+- name: "[install-user-tasks] host:*.{{ user.name }} path={{ usa.stat.path | default('not found') }}"
   include_tasks: task-taskFolder.yml
   vars:
-    path: "{{ global_install_folder }}/host:*/user:{{ user.name }}"
+    path: "{{ usa.stat.path }}"
     service_user: "{{ user.name }}"
     template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
-  tags: [ generic_igh ]
-  when: ufs.stat.exists
+  when: usa.stat.exists
 
 #
 #   <p> user specific standard folder
 #
 - { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }}" }, delegate_to: localhost, register: ufs }
 - debug: { msg: "Path {{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }} exists: {{ ufs.stat.exists }}" }
-- name: "[install-user-tasks] Std Folders: this hosts this user {{ global_install_folder }}/hosts/{{ inventory_hostname }}/users/{{ user.name }}"
+- name: "[install-user-tasks] {{ inventory_hostname }}.{{ user.name }} path={{ ufs.stat.path | default('not found') }}"
   include_tasks: task-taskFolder.yml
   vars:
-    path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/user:{{ user.name }}"
+    path: "{{ ufs.stat.path }}"
     service_user: "{{ user.name }}"
     template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
   tags: [ generic_igh ]

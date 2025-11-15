@@ -57,7 +57,7 @@
     extract_dir: "{{ dest | dirname }}"
     extract_moveto: "{{ dest | basename }}"
     # do not move extracted dir
-    extract_asis: "{% if options | regex_search('asis') is not none %}True{% else %}False{% endif %}"
+    extract_asis: "{% if options | regex_search('asis') is not none %}true{% else %}false{% endif %}"
     extract_mode: "{% if mode == ''%}0750{% else %}{{ mode }}{% endif %}"
 
     # ssh:push (alternative naming)
@@ -81,9 +81,9 @@
     # repo (alternative naming)
     repo_name: "{{ pathraw }}"
     repo_prio: "{% if ownerraw == '' %}100{% else %}{{ ownerraw }}{% endif %}"
-    repo_enabled: "{% if group | regex_search('^enabled$') is not none %}True{% else %}False{% endif %}"
-    repo_autoimport: "{% if mode | regex_search('no_autoimport') is not none %}False{% else %}True{% endif %}"
-    repo_autorefresh: "{% if mode | regex_search('no_autorefresh') is not none %}False{% else %}True{% endif %}"
+    repo_enabled: "{% if group | regex_search('^enabled$') is not none %}true{% else %}false{% endif %}"
+    repo_autoimport: "{% if mode | regex_search('no_autoimport') is not none %}false{% else %}true{% endif %}"
+    repo_autorefresh: "{% if mode | regex_search('no_autorefresh') is not none %}false{% else %}true{% endif %}"
 
     # link (alternative naming)
     link_force: "{% if options | regex_search('no_force') is not none %}false{% else %}true{% endif %}"
@@ -93,9 +93,10 @@
 
     # service (alternative naming)
     service_name: "{{ pathraw }}"
-    service_enabled: "{% if ownerraw == '' or ownerraw == 'enabled' %}True{% else %}False{% endif %}"
+    service_enabled: "{% if ownerraw == '' or ownerraw == 'enabled' %}true{% else %}false{% endif %}"
     service_started: "{% if groupraw == '' %}started{% else %}{{ groupraw }}{% endif %}"
-    service_system: "{% if mode == '' or mode == 'system' %}True{% else %}False{% endif %}"
+    #service_system: "{% if mode == '' or mode == 'system' %}true{% else %}false{% endif %}"
+    service_system: "{{ mode in ['', 'system'] }}"
 
     # secret (alternative naming)
     secret_key: "{{ dest }}"
@@ -107,7 +108,7 @@
     # package (alternative naming)
     package_path: "{{ path }}"
     package_name: "{{ pathraw }}"
-    package_force: "{% if ownerraw | regex_search('force') is not none %}True{% else %}False{% endif %}"
+    package_force: "{% if ownerraw | regex_search('force') is not none %}true{% else %}false{% endif %}"
     package_os: "{% if group == '' %}ansible_distribution{% else %}{{ groupraw }}{% endif %}"
 
     # debug
