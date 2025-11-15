@@ -29,13 +29,15 @@
   when: igh.stat.exists
 
 #   <p> all hosts
+# detect folder
 # seperate set_fact as register always overwrites variable
 - { stat: { path: "{{ global_install_folder }}/host:*/host" }, delegate_to: localhost, register: iggRaw }
 - { set_fact: { igg: "{{ iggRaw }}" } }
 - { stat: { path: "{{ global_install_folder }}/host:*" }, delegate_to: localhost, register: iggRaw }
 - { set_fact: { igg: "{{ iggRaw }}" }, when: not igg.stat.exists }
 #- { stat: { path: "{{ global_install_folder }}/host:*" }, delegate_to: localhost, register: igg }
-- debug: { msg: "path={{ igg.stat.path }}" }
+# process taskFolder
+#- debug: { msg: "path={{ igg.stat.path }}" }
 - name: "[install] folder={{ igg.stat.path }}"
   include_tasks: task-taskFolder.yml
   #apply: { tags: [ generic_igg ] }
@@ -45,11 +47,17 @@
   when: igg.stat.exists
 
 #   <p> current host
-- { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/host" }, delegate_to: localhost, register: igf }
-- name: "[install] folder={{ global_install_folder }}/host:{{ inventory_hostname }}/host"
+# detect folder
+- { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/host" }, delegate_to: localhost, register: igfRaw }
+- { set_fact: { igf: "{{ igfRaw }}" } }
+- { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}" }, delegate_to: localhost, register: igfRaw }
+- { set_fact: { igf: "{{ igfRaw }}" }, when: not igf.stat.exists }
+#- { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/host" }, delegate_to: localhost, register: igf }
+# process taskFolder
+- name: "[install] folder={{ igf.stat.path }}"
   include_tasks: task-taskFolder.yml
   #apply: { tags: [ generic_igf ] }
-  vars: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/host", install_user: root, template_vars: "{{ features[inventory_hostname]['template_vars'] | default( {} ) }}" }
+  vars: { path: "{{ igf.stat.path }}", install_user: root, template_vars: "{{ features[inventory_hostname]['template_vars'] | default( {} ) }}" }
   tags: [ generic_igf ]
   when: igf.stat.exists
 
