@@ -18,5 +18,5 @@
   vars:
     key: "{{ v | regex_replace('^([^=]+)=.*', '\\g<1>') }}"
     value: "{{ v | regex_replace('^[^=]+=(.*)', '\\g<1>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') |regex_replace('^(.*?)[$]HOME(.*)$', '\\g<1>' + install_home + '\\g<2>') | regex_replace('^(.*?)[$]UID(.*)$', '\\g<1>' + install_uid + '\\g<2>') | regex_replace('^(.*?)[$]UID(.*)$', '\\g<1>' + install_uid + '\\g<2>') |regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') | regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') | regex_replace('^(.*?)[$]USER(.*)$', '\\g<1>' + install_user + '\\g<2>') }}"
-  loop: "{{ lookup('file', '{{ path }}').split(\"\n\") }}"
+  loop: "{{ lookup('file', path).split(\"\n\") }}"
   loop_control: { loop_var: v }

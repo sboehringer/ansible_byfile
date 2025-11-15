@@ -13,12 +13,13 @@
 #   <p> system service
 #
 
+- debug: { msg: "service_system={{ service_system }}"}
 - name: "[task-service] probe={{ service_name }} {Level 4}"
   shell: "systemctl status {{ service_name }} ; echo $?"
   register: probe
   when: service_system
 
-- name: "[task-service] service={{ service_name }} enabled={{ service_enabled }} started={{ service_started }} exit={{ probe.stdout }}"
+- name: "[task-service] service={{ service_name }} enabled={{ service_enabled }} started={{ service_started }}"
   service:
     name: "{{ service_name }}"
     enabled: "{{ service_enabled }}"
@@ -36,7 +37,7 @@
   register: probe
   when: not service_system
 
-- name: "[task-service] user service={{ service_name }} enabled={{ service_enabled }} started={{ service_started }} exit={{ probe.stdout }}"
+- name: "[task-service] user service={{ service_name }} enabled={{ service_enabled }} started={{ service_started }}"
   systemd:
     name: "{{ service_name }}"
     enabled: "{{ service_enabled }}"

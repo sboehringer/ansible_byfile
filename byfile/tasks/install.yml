@@ -21,7 +21,7 @@
 #   <p> architecture specific installs
 #   <N> perform first as dirs/files might depend on packages installed here
 - { stat: { path: "{{ global_install_folder }}/arch:{{ hostcombo }}" }, delegate_to: localhost, register: igh }
-- name: "[install.yml] folder={{ global_install_folder }}/arch:{{ hostcombo }}"
+- name: "[install.yml] folder={{ igh.stat.path | default('not found') }}"
   include_tasks: task-taskFolder.yml
   #apply: { tags: [ generic_igh ] }
   vars: { path: "{{ global_install_folder }}/arch:{{ hostcombo }}", install_user: root }
@@ -38,7 +38,7 @@
 #- { stat: { path: "{{ global_install_folder }}/host:*" }, delegate_to: localhost, register: igg }
 # process taskFolder
 #- debug: { msg: "path={{ igg.stat.path }}" }
-- name: "[install] folder={{ igg.stat.path }}"
+- name: "[install] folder={{ igg.stat.path | default('not found') }}"
   include_tasks: task-taskFolder.yml
   #apply: { tags: [ generic_igg ] }
   vars: { path: "{{ igg.stat.path }}", install_user: root, template_vars: "{{ features[inventory_hostname]['template_vars'] | default( {} ) }}" }
@@ -53,8 +53,9 @@
 - { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}" }, delegate_to: localhost, register: igfRaw }
 - { set_fact: { igf: "{{ igfRaw }}" }, when: not igf.stat.exists }
 #- { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/host" }, delegate_to: localhost, register: igf }
+- debug: { msg: "{{ igf }} {{ igfRaw }}"}
 # process taskFolder
-- name: "[install] folder={{ igf.stat.path }}"
+- name: "[install] folder={{ igf.stat.path | default('not found') }}"
   include_tasks: task-taskFolder.yml
   #apply: { tags: [ generic_igf ] }
   vars: { path: "{{ igf.stat.path }}", install_user: root, template_vars: "{{ features[inventory_hostname]['template_vars'] | default( {} ) }}" }
