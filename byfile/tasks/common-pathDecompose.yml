@@ -84,6 +84,7 @@
     repo_enabled: "{% if group | regex_search('^enabled$') is not none %}true{% else %}false{% endif %}"
     repo_autoimport: "{% if mode | regex_search('no_autoimport') is not none %}false{% else %}true{% endif %}"
     repo_autorefresh: "{% if mode | regex_search('no_autorefresh') is not none %}false{% else %}true{% endif %}"
+    repo_os: "{% if options == '' %}ansible_distribution{% else %}{{ options }}{% endif %}"
 
     # link (alternative naming)
     link_force: "{% if options | regex_search('no_force') is not none %}false{% else %}true{% endif %}"
