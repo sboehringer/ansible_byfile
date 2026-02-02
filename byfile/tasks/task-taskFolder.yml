@@ -3,8 +3,9 @@
 #Sun Sep 22 03:25:16 PM CEST 2024
 
 # Technical documentation
-#   This file can call itself recursively using `include_tasks`. As ansible
-#   does not handle
+#   This file can call itself recursively using `include_tasks`.
+#   As ansible does not allow for local variables, newPrefix and myLoopVar
+#   are set to unique in each recurive evaluation.
 
 #- { stat: { path: "{{ path }}" }, delegate_to: localhost, register: ps }
 #- debug: { msg: "path={{path}} stat={{ps}}"}
@@ -15,12 +16,12 @@
     #paths: [ "{% if not ps.stat.islnk %}{{ path }}{% else %}{{ ps.stat.lnk_target }}{% endif %}" ]
     paths: [ "{{ path }}" ]
     file_type: any
-    patterns: [ "^(\\d+.)?([@]|log|repo|file|template|dir|extract|line|link|make|makeinit|rsync|secret|shell|package:sys|package:cpanm|package:pip|package:flatpak|package:rpms?|crontab|crontab:env|mount|ssh:pull|ssh:push|ssh:hostkey|service).*$" ]
+    patterns: [ "^(\\d+.)?([@]|log|repo|file|template|dir|extract|line|link|make|makeinit|rsync|secret|shell|package:sys|package:cpanm|package:pip|package:flatpak|package:rpms?|croinstall_objects_orderedntab|crontab:env|mount|ssh:pull|ssh:push|ssh:hostkey|service).*$" ]
     use_regex: True
     recurse: False
   delegate_to: localhost
   register: install_objects_ordered
-#- debug: { msg: "{{ install_objects_ordered }}" }
+- debug: { msg: "[task-taskFolder] install_objects_ordered={{ install_objects_ordered }}" }
 
 # natural order, if not ordered by leading digits
 # pre-pend fake string for sorting, remove later
@@ -28,14 +29,17 @@
 #   i.e. path or another backup variable is overwritten
 - set_fact:
     install_objects_raw1: "{% for p in install_objects_ordered.files %}{{ path }}/{{ p.path | regex_replace('^(.*?)/((?:log)[^/]*)$', '01-@-\\2') | regex_replace('^(.*?)/((?:repo)[^/]*)$', '02-@-\\2') |regex_replace('^(.*?)/((?:package:sys)[^/]*)$', '04-@-\\2') | regex_replace('^(.*?)/((?:package:cpanm|package:pip|package:flatpak|package:rpms?)[^/]*)$', '08-@-\\2') | regex_replace('^(.*?)/((?:secret)[^/]*)$', '12-@-\\2') | regex_replace('^(.*?)/((?:dir)[^/]*)$', '16-@-\\2') | regex_replace('^(.*?)/((?:ssh:pull|ssh:push|ssh:hostkey)[^/]*)$', '20-@-\\2') | regex_replace('^(.*?)/((?:file|extract|link|make|makeinit|rsync|template)[^/]*)$', '24-@-\\2') | regex_replace('^(.*?)/((?:line)[^/]*)$', '28-@-\\2') | regex_replace('^(.*?)/((?:shell)[^/]*)$', '32-@-\\2') | regex_replace('^(.*?)/((?:crontab:env)[^/]*)$', '36-@-\\2') | regex_replace('^(.*?)/((?:crontab)[^/]*)$', '40-@-\\2') | regex_replace('^(.*?)/((?:mount)[^/]*)$', '44-@-\\2') | regex_replace('^(.*?)/((?:service)[^/]*)$', '48-@-\\2') | regex_replace('^(.*?)/([@].*)$', '01-@-\\2') | regex_replace('^(.*?)/(\\d+[^/]*)$', '\\2') }}{% if loop.last %}{% else %}-*-{% endif %}{% endfor %}"
-- debug: { msg: "[task-taskFolder] install_objects_raw1={{ install_objects_raw1 }}" }
+  when: install_objects_ordered.files | length > 0
+#- debug: { msg: "[task-taskFolder] install_objects_raw1={{ install_objects_raw1 }}" }
 - set_fact: { install_objects: "{{ install_objects_raw1 | split('-*-') | sort }}" }
+  when: install_objects_ordered.files | length > 0
 
 #- debug: { msg: "[task-taskFolder] install_objects={{ install_objects }}" }
 
 - set_fact:
     newPrefix: "inTf_{{ var_prefix }}"
     myLoopVar: "{{ var_prefix }}_object"
+  when: install_objects_ordered.files | length > 0
 
 - name: "[task-taskFolder] invoke task {Level: 5}"
   include_tasks: "task-{{ lookup('vars', ansible_loop_var) | regex_replace('^.*?/([^/]*)$', '\\1') | regex_replace('\\d+-@-', '') | regex_replace('^(?:\\d+.)?([@]\\S+|log|repo|file|template|dir|extract|line|link|make|makeinit|rsync|secret|shell|package:sys|package:cpanm|package:pip|package:flatpak|package:rpms?|crontab|crontab:env|mount|ssh:pull|ssh:push|ssh:hostkey|service)(?:[ _].*$|$)', '\\1') | regex_replace('^[@].*', 'taskFolder') }}.yml"
@@ -44,3 +48,4 @@
     var_prefix: "{{ newPrefix }}"
   loop: "{{ install_objects }}"
   loop_control: { loop_var: "{{ myLoopVar }}" }
+  when: install_objects_ordered.files | length > 0

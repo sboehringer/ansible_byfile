@@ -53,7 +53,7 @@
 - { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}" }, delegate_to: localhost, register: igfRaw }
 - { set_fact: { igf: "{{ igfRaw }}" }, when: not igf.stat.exists }
 #- { stat: { path: "{{ global_install_folder }}/host:{{ inventory_hostname }}/host" }, delegate_to: localhost, register: igf }
-- debug: { msg: "{{ igf }} {{ igfRaw }}"}
+- debug: { msg: "[install.yml:current_host:detect]: folder1st={{ global_install_folder }}/host:{{ inventory_hostname }}/host igf={{ igf }} stat={{ igfRaw }}"}
 # process taskFolder
 - name: "[install] folder={{ igf.stat.path | default('not found') }}"
   include_tasks: task-taskFolder.yml

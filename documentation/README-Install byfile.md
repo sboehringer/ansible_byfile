@@ -91,7 +91,12 @@ The __byfile__ specification is a list of files the file name of which describes
  * [line](#type_line): control line within file
  * [link](#type_link): create symbolic link
  * [mount](#type_mount): mount volumes
+ * [package](#type_package): install packages
+ * [package:cpanm](#type_package_cpanm): install local perl packages
+ * [package:flatpak](#type_package_flatpak): install flathub packages
+ * [package:pip](#type_package_pip): install local python packages
  * [package:sys](#type_package_sys): install system packages
+ * [repo](#type_repo): add system repository
  * [rsync](#type_rsync): rsync dir/file
  * [service](#type_service) Manage systemd services
  * [ssh:push](#type_ssh_push) install public user ssh key as authorized key
@@ -213,32 +218,86 @@ Several inputs `input1` are meaningful only for `asis` option.
 
 	tar cf - input | zstd -19 -z -o ~/tmp/myarchive.tzst
 
-## __repo__
+## <a name="type_repo"></a>__repo__
 
 Add system repositories.
 
-Specification: `repo` *name*;*prio*;*enabled|disabled*;*options(autoimport|no_autoimport,no_autorefresh)*
+Specification: `repo` *name*;*prio*;*enabled|disabled*;*options(autoimport|no_autoimport,no_autorefresh)*;*OS*
 
  * *name*: name of repository
  * *prio*: numeric repository priority
  * *enabled|disabled*: status of repository; either __enabled__ or __disbled__ 
  * *options(autoimport|no_autoimport,no_autorefresh)*: repostitory options; __autoimport__: import GPG keys, __no_autorefresh__: prevent automatic refresh
+ * *OS*: specify to which OS the package list applies. Packages will only be installed when this string matches __ansible_distribution__. This should be used when packages are not installed at the host level but, for example, as part of a *@template*
  * __file conent__: URL of repository
 
-## __package__
+__Note__: String `${relversion}` is replaced with the value of ansible variable *ansible_distribution_version*.
+
+## <a name="type_package"></a>__Packages__
+
+Files 'package:(sys|cpanm|pip|flatpak) *description*' are used to install packages from different sources.
 
 ### <a name="type_package_sys"></a>__package:sys__
 
 Install system packages.
 
-Specification: `package:sys` *name*;*options*;*OS*
+Specification: `package:sys` *description*;*options*;*OS*
 
- * *name*: name of package
+ * *description*: description of packages installed by the file
  * *options*: __force__ to force (re-)installation of package
  * *OS*: specify to which OS the package list applies. Packages will only be installed when this string matches __ansible_distribution__. This should be used when packages are not installed at the host level but, for example, as part of a *@template*
+ * __file conent__
+   * each line specifies name of a package
+   * Empty lines are ignored
+   * Lines beginning with '#' are ignored.
 
 __Note__: When no *OS* is specified, the value of __ansible_distribution__ is assumed. When installed in the `host` folder, the packages can be assumed to match the host. If installed in `host:*`, *OS* should be specified unless all hosts are homogeneous with respect to OS.
 
+### <a name="type_package_cpanm"></a>__package:cpanm__
+
+Install packages from cpan.
+
+Specification: `package:cpanm` *name*;*options*
+
+ * *description*: description of packages installed by the file
+ * *options*: __force__ to force (re-)installation of package
+ * __file conent__
+   * each line specifies name of a package
+   * Empty lines are ignored
+   * Lines beginning with '#' are ignored.
+
+### <a name="type_package_pip"></a>__package:pip__
+
+Install packages from PyPI.
+
+Specification: `package:pip` *name*;*options*
+
+ * *description*: description of packages installed by the file
+ * *options*: __force__ to force (re-)installation of package
+ * __file conent__
+   * each line specifies name of a package/URL
+   * URL to git repo, prefixed by 'git+' (*e.g.* git+https://github.com/user/package.git)
+   * Empty lines are ignored
+   * Lines beginning with '#' are ignored.
+
+__Note__: `pip3` is used to install these packages as user local python3 modules.
+
+### <a name="type_package_flatpak"></a>__package:flatpak__
+
+Install packages using flatpak.
+
+Specification: `package:flatpak` *name*;*options*
+
+ * *description*: description of packages installed by the file
+ * *options*: __force__ to force (re-)installation of package
+ * __file conent__
+   * each line specifies name of a package/URL
+   * Empty lines are ignored
+   * Lines beginning with '#' are ignored.
+
+__Note__:  Command `flatpak` is used to install the packages. This task depends on proper setup of a flatpak repository.
+
+ 
 ## __ssh__
 
 ### <a name="type_ssh_push"></a>__ssh:push__
@@ -365,6 +424,7 @@ Specification: `service` *service name*;*boot status*;*momentary status*;*type* 
   * *momentary status*: status after ansible run: started/stopped
   * *type*: type of service: user/system
 
+
 # Old documentation
 
 ### __make__
@@ -428,56 +488,6 @@ The text is not templated. It is subject to the following substitutions (see __l
  * $HOME: path of home folder
  * $UID: user id
  * $SECRET: current secret as set by file type __secret__
-
-# Packages
-
-Folder with text files 'packages-(sys|cpanm|pip|flatpak)-.*'. Other files are ignored. In all files, empty lines and lines starting in '#' are ignored. Trailing parts of the file name can be used to describe the packages installed.
-
-Specification: *reponame*;*prio*;*enabled|disabled*;*options*
-
-Options:
- * force: force resolution (if supported by package manager)
-
-## __sys__
-
-The system package manager is used to install system packages. Ususally, these files should live in a *systemcombo* directory.
-
-Package specification
-
- * *package name* (*e.g.* pdftk)
- * comment lines starting with '#'
- * empty lines
-
-## __cpanm__
-
-`cpanm` is used to install these packages as user local perl modules.
-
-Package specification
-
- * *package name* (*e.g.* Parse::RecDecent)
- * comment lines starting with '#'
- * empty lines
-
-## __pip__
-
-`pip3` is used to install these packages as user local python3 modules.
-
-Package specification
-
- * *package name* (*e.g.* tensorflow)
- * URL to git repo, prefixed by 'git+' (*e.g.* git+https://github.com/user/package.git)
- * comment lines starting with '#'
- * empty lines
-
-## __flatpak__
-
-Internal `flatpak` is used to install these packages.
-
-Package specification
-
- * *package name* (*e.g.* io.freetubeapp.FreeTube)
- * comment lines starting with '#'
- * empty lines
 
 
 # Best practices

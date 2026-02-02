@@ -7,11 +7,9 @@
 #   vars:
 #       path
 
-- include_tasks: common-pathDecompose.yml
-
 - name: "[task-repo:openSUSE Leap] name={{ repo_name }}"
   zypper_repository:
-    #name: "{{ repo_name }}"    # assume name defined through uri
+    name: "{{ repo_name }}"
     enabled: "{{ repo_enabled }}"
     priority: "{{ repo_prio }}"
     repo: "{{ uri }}"
@@ -21,4 +19,4 @@
     auto_import_keys: "{{ repo_autoimport }}"
     runrefresh: yes
   vars:
-    uri: "{{ lookup('file', '{{ path_src }}') | regex_replace('\\${releasever}', os_version) }}"
+    uri: "{{ lookup('file', path_src) | regex_replace('\\${releasever}', os_version) }}"

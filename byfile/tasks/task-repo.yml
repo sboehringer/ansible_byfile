@@ -3,5 +3,8 @@
 #Sat Nov  9 01:09:21 PM CET 2024
 ---
 
-- name: "[task-repo] distribution={{ anisible_distribution }} {Level: 5}"
+- include_tasks: common-pathDecompose.yml
+- debug: { msg: "repo_os='{{ repo_os }}'" }
+- name: "[task-repo] distribution={{ ansible_distribution }} {Level: 5}"
   include_tasks: "task-repo:{{ ansible_distribution }}.yml"
+  when: repo_os == '' or repo_os == ansible_distribution
