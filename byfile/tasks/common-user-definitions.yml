@@ -25,4 +25,4 @@
 
 - name: "[common-user-definitions] user template_vars intall_user={{ install_user }}, install_home={{ install_home }} install_uid={{ install_uid }}"
   set_fact: { "{{ item.key }}": "{{ item.value }}" }
-  loop: "{{ user['template_vars'] | default({}) | dict2items }}"
+  loop: "{{ user['template_vars'] | default({}) | combine({ 'user_name': user.name, 'user_home': install_home | default('/tmp'), 'user_uid': install_uid }) | dict2items }}"

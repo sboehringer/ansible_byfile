@@ -95,7 +95,7 @@
   vars:
     path: "{{ ufgg.stat.path }}"
     service_user: "{{ user.name }}"
-    template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
+    #template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
   tags: [ generic_igh ]
   when: ufgg.stat.exists
 
@@ -108,7 +108,7 @@
   vars:
     path: "{{ ufg.stat.path }}"
     service_user: "{{ user.name }}"
-    template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
+    #template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
   tags: [ generic_igh ]
   when: ufg.stat.exists
 
@@ -123,7 +123,7 @@
   vars:
     path: "{{ usa.stat.path }}"
     service_user: "{{ user.name }}"
-    template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
+    #template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
   when: usa.stat.exists
 
 #
@@ -136,6 +136,6 @@
   vars:
     path: "{{ ufs.stat.path }}"
     service_user: "{{ user.name }}"
-    template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
+    #template_vars: "{{ user.template_vars | default({}) | combine({ 'user_name': user.name, 'user_home': current_home, 'user_uid': current_uid }) }}"
   tags: [ generic_igh ]
   when: ufs.stat.exists
