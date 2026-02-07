@@ -4,6 +4,6 @@
 
 - include_tasks: common-pathDecompose.yml
 - debug: { msg: "package_os='{{ package_os }}'" }
-- name: "[task-package] System={{ package_name }} dist='{{ ansible_distribution }}' {Level: 2}"
-  include_tasks: "task-package:{{ ansible_distribution }}.yml"
-  when: package_os == '' or package_os == ansible_distribution
+- name: "[task-package] System={{ package_name }} dist='{{ hostdist }}' {Level: 2}"
+  include_tasks: "task-package:{{ hostdist }}.yml"
+  when: package_os == '' or package_os == hostdist
