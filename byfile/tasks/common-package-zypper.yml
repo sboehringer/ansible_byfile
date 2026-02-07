@@ -4,7 +4,7 @@
 ---
 
 #   vars:
-#       path: file to pacakge list
+#       path: file to package list
 
 - name: "[common-package-zypper] Packages={{ package_name }} {Level: 4}"
   zypper:

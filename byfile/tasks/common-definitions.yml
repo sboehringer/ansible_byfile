@@ -28,7 +28,7 @@
 - name: "[common-definitions] global facts stage 2 {Level: 4}"
   set_fact: { hostcombo: "{{ hostdist }}_{{ ansible_architecture }}" }
 
-- name: "[common-definitions] template_vars host={{ inventory_hostname }} dist={{ ansible_distribution }} version={{ os_version }} rpm_default_arch={{ rpm_default_arch }} combo={{ hostcombo }} ansible_home={{ ansible_home }} ansible_user_home={{ ansible_user_home }}"
+- name: "[common-definitions] template_vars host={{ inventory_hostname }} dist={{ ansible_distribution }} hostdist={{ hostdist }} version={{ os_version }} rpm_default_arch={{ rpm_default_arch }} combo={{ hostcombo }} ansible_home={{ ansible_home }} ansible_user_home={{ ansible_user_home }}"
   set_fact: { "{{ item.key }}": "{{ item.value }}" }
   loop: "{{ features[inventory_hostname]['template_vars'] | default({}) | dict2items }}"
 

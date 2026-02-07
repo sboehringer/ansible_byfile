@@ -110,7 +110,7 @@
     package_path: "{{ path }}"
     package_name: "{{ pathraw }}"
     package_force: "{% if ownerraw | regex_search('force') is not none %}true{% else %}false{% endif %}"
-    package_os: "{% if group == '' %}ansible_distribution{% else %}{{ groupraw }}{% endif %}"
+    package_os: "{% if groupraw == '' %}{{ hostdist }}{% else %}{{ groupraw }}{% endif %}"
 
     # debug
     log_name: "{{ dest }}"
