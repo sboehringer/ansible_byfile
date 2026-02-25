@@ -1,5 +1,5 @@
-Ansible_byfile: an efficient take on ansible
-============================================
+Ansible byfile: boilerplate free administration
+===============================================
 
 
 # Overview
