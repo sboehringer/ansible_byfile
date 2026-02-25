@@ -1,6 +1,7 @@
 Ansible_byfile: an efficient take on ansible
 ============================================
 
+
 # Overview
 
 The meta-role `byfile` allows to manage administration tasks purely by creating files. Except for `roles/myRole/tasks/main.yml` and `roles/myRole/vars/main.yml` yaml files, no further tasks have to be specified. Most configuration tasks are directly specified in file names. To use `byfile` a standard ansible folder structure is required. An example is given below.
