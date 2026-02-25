@@ -90,6 +90,7 @@ The __byfile__ specification is a list of files the file name of which describes
  * [file](#type_file): install file
  * [line](#type_line): control line within file
  * [link](#type_link): create symbolic link
+ * [make](#type_make): run make on an archive
  * [mount](#type_mount): mount volumes
  * [package](#type_package): install packages
  * [package:cpanm](#type_package_cpanm): install local perl packages
@@ -98,8 +99,10 @@ The __byfile__ specification is a list of files the file name of which describes
  * [package:sys](#type_package_sys): install system packages
  * [repo](#type_repo): add system repository
  * [rsync](#type_rsync): rsync dir/file
- * [service](#type_service) Manage systemd services
- * [ssh:push](#type_ssh_push) install public user ssh key as authorized key
+ * [secret](#type_secret): retrieve secret from keyring
+ * [service](#type_service): Manage systemd services
+ * [shell](#type_shell): Run shell command
+ * [ssh:push](#type_ssh_push): install public user ssh key as authorized key
 
 ### Witnesses
 
@@ -424,10 +427,11 @@ Specification: `service` *service name*;*boot status*;*momentary status*;*type* 
   * *momentary status*: status after ansible run: started/stopped
   * *type*: type of service: user/system
 
+## <a name="type_make"></a>__make__
 
-# Old documentation
+Run make on archive.
 
-### __make__
+Specification: `make` *path*;*user*;*group*;*options*;*pass no*;*permissions*
 
 The __make__ type handles the *path* argument exceptionally.
 
@@ -441,14 +445,16 @@ The __make__ type handles the *path* argument exceptionally.
    * makefile=*Makefile*: specify makefile to use (option `-f`)
    * templatename: use file name as template, current interpolation support:
      * %{user}: interpolate with install_user variable
- * File content: ignored (see makeinit)
+ * __file content__: the file content can contain further shell initialization/installation scripts
 
-### __makeinit__
+__File content specification__
 
- * File content: the file content can contain further shell initialization/installation scripts
+A section started with `-{8,} Configure` and terminated by `-{8,} End Configure` contains a shell script run before calling `make`.
 
-#### File content example
- 
+A section `-{8,} Install` and terminated by `-{8,} End Install` contains a script run after calling `make`.
+
+__Example__ (file content):
+
 	--------- Configure
 	export CFLAGS='-fPIC -Wno-error=terminate -Wno-error=misleading-indentation'
 	export PYTHON_EXECUTABLE=python3
@@ -457,13 +463,18 @@ The __make__ type handles the *path* argument exceptionally.
 	cp mame2016_libretro.so /usr/lib64/libretro/
 	---------- End Install
 
-A section started with `-{8,} Configure` and terminated by `-{8,} End Configure` contains a shell script run before calling `make`.
+## <a name="type_secret"></a> __secret__
 
-A section `-{8,} Install` and terminated by `-{8,} End Install` contains a script run after calling `make`.
+Retrieve secret using `secret-tool`.
 
-### __secret__
+Specification: `secret` *key*;*attribute*
 
-Retrieve secret given by *path* from `secret-tool`.
+ * *key*: key to be retrieved from keyring
+ * *attribute*: attribute to provide to secret-tool (default: password)
+
+The variable *$SECRET* is substituted in where applicable: *shell*, *line*.
+
+__Keyring details__
 
 The following command should used to store the secret.
 
@@ -474,13 +485,18 @@ The command used by the this pseude-install is.
 	secret-tool lookup ansible/__key_used_as_path__ password
 
 
-### __shell__
+
+## <a name="type_shell"></a>__shell__
 
 Run shell command given in file content. Command execution is shielded by a witness, which has to be removed for a re-run.
 
-*Options*
+Specification: `shell` *name*;*user*;*group*;*options*
 
- * cdtmp: change working dir to a temporary folder
+ * *name*: name of the script, documentation only
+ * *user*: user to run under
+ * *group*: ignored
+ * *options*
+   * cdtmp: change working dir to a temporary folder
 
 The text is not templated. It is subject to the following substitutions (see __line__):
 
@@ -493,4 +509,6 @@ The text is not templated. It is subject to the following substitutions (see __l
 # Best practices
 
 ## Ad-hoc hosts
+
+For ad-hoc chnages it is recommended to add a new folder *host*-adhoc which has to be added to the *$ANSIBLE_HOME/hosts* file and as an alias to *~/.ssh/config*. Files created here ad-hoc can be moved to the main host folder after the ad-hoc changes.
 
