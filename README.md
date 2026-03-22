@@ -6,7 +6,7 @@ Ansible role that allows file-based admintistration for heterogeneous environmen
 
 ## Documentation
 
-Filenames and sometimes file content contain all information for the administration task. Filder `documentation` describes all supported tasks.
+Filenames and sometimes file content contain all information for the administration task. Folder `documentation` describes all supported tasks.
 
 ## Installation
 
